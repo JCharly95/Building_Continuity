@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
-export default function menuDropdown({ solFilBus, elemSel }) {
+export default function menuDropdown({ solFilBus, elemSel, title }) {
     const [dropdown, setDropdown] = useState(false);
-    const [tituloMenu, setTituloMenu] = useState("Seleccione la categoria");
+    const [tituloMenu, setTituloMenu] = useState(title);
 
     // Metodo para abrir o cerrar la lista desplegable, segun el estado en el que este
     const abrirCerrarMenu = () => { setDropdown(!dropdown); }

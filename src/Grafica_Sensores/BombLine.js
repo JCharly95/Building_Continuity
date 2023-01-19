@@ -1,11 +1,12 @@
 // ** Third Party Components
-import axios from 'axios';
-import Chart from 'react-apexcharts';
-import Flatpickr from 'react-flatpickr';
-import "flatpickr/dist/themes/light.css";
+import axios from 'axios'
+import Chart from 'react-apexcharts'
+import Flatpickr from 'react-flatpickr'
+import 'flatpickr/dist/themes/light.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import SelFilBus from './Lista_Sensores/Lista'
-import "bootstrap/dist/css/bootstrap.min.css";
 import { Search, Calendar, Clock } from 'react-feather'
+import AddSensor from './Agregar_Sensor/Form_Nue_Sensor'
 import React, { useEffect, useState, useRef } from 'react';
 
 export default function BombLine_BMS (){
@@ -138,7 +139,7 @@ export default function BombLine_BMS (){
     };
 //-------------------------------------------------------------------------------------------------------------
 //----------------------Preparacion del filtro de busqueda de informacion para el usuario----------------------
-    const listaFil = [
+    const [listaFil, setListaFil] = useState([
         {
             nombre: "Bateria",
             valor: "/niagaratest/Engine$20Battery"
@@ -183,8 +184,14 @@ export default function BombLine_BMS (){
             nombre: "Nivel de Piso",
             valor: "/niagaratest/Number$20of$20Starts"
         }
-    ];
+    ]);
+
+    // Funcion para establecer los sensores a buscar; Esta funcion se usara junto con el modal de agregar sensor
+    const addSensBus = (nueLista) => {
+        setListaFil(nueLista);
+    }
     
+    // Funcion para setear el tipo de dato a buscar en la grafica; Este dato es retornado por la lista de seleccion
     const solFilBus = (filBus) => {
         setTipInfoBus(filBus);
     }
@@ -229,7 +236,7 @@ export default function BombLine_BMS (){
                             </div>
                             <div className='col-md-auto'>
                                 <div className='row align-items-center mb-2'>
-                                    <SelFilBus solFilBus={solFilBus} elemSel={listaFil}/>
+                                    <SelFilBus solFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
                                 </div>
                             </div>
                         </div>
@@ -281,6 +288,9 @@ export default function BombLine_BMS (){
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div className='col-md-auto'>
+                        <AddSensor addSenFunc={addSensBus} elemsBD={metadata} />
                     </div>
                 </div>
                 <div className='row align-items-center border pt-3 pb-3'>
