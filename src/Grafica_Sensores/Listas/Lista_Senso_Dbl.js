@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
-export default function menuDropdown({ solFilBus, elemSel, title }) {
+export default function menuDropdown({ selFilBus, elemSel, title }) {
     const [dropdown, setDropdown] = useState(false);
     const [tituloMenu, setTituloMenu] = useState(title);
 
     // Metodo para abrir o cerrar la lista desplegable, segun el estado en el que este
-    const abrirCerrarMenu = () => { setDropdown(!dropdown); }
+    const abrirCerrarMenu = () => {
+        setDropdown(!dropdown);
+    }
 
     return (
         <div className="menuDesple">
@@ -18,13 +20,13 @@ export default function menuDropdown({ solFilBus, elemSel, title }) {
                 </DropdownToggle>
                 <DropdownMenu>
                     {
-                        elemSel.map((elemento) => {
+                        elemSel.map((elemento, index) => {
                             return (
                                 <DropdownItem onClick={ () => {
-                                        solFilBus (`${elemento.valor};${elemento.nombre}`); 
+                                        selFilBus (`${elemento.valor};${elemento.nombre}`); 
                                         setTituloMenu(elemento.nombre);
                                     }
-                                }>{elemento.nombre}</DropdownItem>
+                                } key={"TipSensor"+index} >{elemento.nombre}</DropdownItem>
                             );
                         })
 

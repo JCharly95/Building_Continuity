@@ -1,31 +1,46 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import ListaSensores from "../Listas/Lista"
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
-export default function Nuevo_Sensor({ addSenFunc, elemsBD }) {
-    // Establecer la variable de busqueda de datos (el filtro que se usara con la lista desplegable)
+export default function Nuevo_Sensor({ senFunc, sensores, elemsBD }) {
+    // Establecer la variable de busqueda del sensor en la base de datos que sera seleccionada en una lista desplegable
     const [sensor, setSensor] = useState("No hay Sensor");
     // Constante de estado para establecer la apertura o cierre del modal
     const [modal, setModal] = useState(false);
-    // Metodo para abrir o cerrar la lista desplegable, segun el estado en el que este
-    const abrirCerrarModal = () => { setModal(!modal); }
+    // Variable de referencia para obtener el campo de texto de creacion de sensor
+    const nomRef = useRef(null);
 
-    // Obtener todos los nombres de los sensores en la base de datos
-    const allRegis = [];
+    // Metodo para abrir o cerrar el modal, segun el estado en el que este
+    const abrirCerrarModal = () => {
+        setModal(!modal);
+    }
+    // Obtener todos los nombres de los sensores en la base de datos para la lista desplegable
+    const allSensBD = [];
     elemsBD.map((registro) => (
-        allRegis.push(`${registro.HISTORY_ID}`)
+        allSensBD.push(`${registro.HISTORY_ID}`)
     ));
     // Eliminacion de elementos repetidos con filter
-    const registros = allRegis.filter((elem, index) => {
-        return allRegis.indexOf(elem) === index;
+    const registros = allSensBD.filter((elem, index) => {
+        return allSensBD.indexOf(elem) === index;
     });
 
-    console.log(registros);
-
-    // Funcion para setear el tipo de dato a buscar en la grafica; Este dato es retornado por la lista de seleccion
+    // Funcion para setear el tipo de dato a buscar en la grafica; Este dato es obtenido al retorno de seleccion por la lista
     const nueSensList = (sensSel) => {
         setSensor(sensSel);
+    }
+
+    // Funcion para crear agregar sensores al arreglo de valores de seleccion para la grafica
+    function crearSensor(){
+        sensores.push({
+            nombre: `${nomRef.current.value}`,
+            valor: `${sensor}`
+        });
+
+        // Establecer el valor de retorno de la propiedad de funcion
+        senFunc(sensores);
+        abrirCerrarModal();
     }
 
     return (
@@ -41,15 +56,15 @@ export default function Nuevo_Sensor({ addSenFunc, elemsBD }) {
                     <ModalBody>
                         <div className="form-group">
                             <label htmlFor="nombre-filtro" className="col-form-label">Nombre:</label>
-                            <input type="text" className="form-control" id="nombre-filtro" />
+                            <input type="text" className="form-control" id="nombre-filtro" ref={nomRef} />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="sensor-value" className="col-form-label">Sensor Base de Datos:</label>
-                            <ListaSensores solFilBus={nueSensList} elemSel={registros} title="Seleccione el Sensor" className="form-control" id="sensor-value"/>
+                            <label htmlFor="sensor-value" className="col-form-label">Sensores Almacenados en la Base de Datos:</label>
+                            <ListaSensores solFilBus={nueSensList} elemSel={registros} title="Seleccione el Sensor" className="form-control" id="sensor-value" />
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="success" onClick={abrirCerrarModal}>Agregar Sensor</Button>
+                        <Button color="success" onClick={crearSensor}>Agregar Sensor</Button>
                         <Button color="danger" onClick={abrirCerrarModal}>Cancelar</Button>
                     </ModalFooter>
                 </Modal>
@@ -58,38 +73,9 @@ export default function Nuevo_Sensor({ addSenFunc, elemsBD }) {
     );
 }
 
-function ListaSensores({ solFilBus, elemSel, title }) {
-    const [menu, setMenu] = useState(false);
-    const [tituloMenu, setTituloMenu] = useState(title);
+/*  MUCHO OJO; ESTA ES LA EXPLICACION VIEJA POR SI ME PIERDO UN POCO, LA NUEVA EXPLICACION ESTA EN BOMBLINE (por si acaso)
 
-    // Metodo para abrir o cerrar la lista desplegable, segun el estado en el que este
-    const abrirCerrarMenu = () => { setMenu(!menu); }
-
-    return (
-        <div className="menuDesple">
-            <Dropdown isOpen={menu} toggle={abrirCerrarMenu}>
-                <DropdownToggle caret>
-                    {tituloMenu}
-                </DropdownToggle>
-                <DropdownMenu>
-                    {
-                        elemSel.map((elemento) => {
-                            return (
-                                <DropdownItem onClick={ () => {
-                                        solFilBus (elemento); 
-                                        setTituloMenu(elemento);
-                                    }
-                                }>{elemento}</DropdownItem>
-                            );
-                        })
-                    }
-                </DropdownMenu>
-            </Dropdown>
-        </div>
-    );
-}
-
-/* Explicacion rapida para pasar valores entre componentes react (hijo a padre)
+    Explicacion rapida para pasar valores entre componentes react (hijo a padre)
         Primero se crea una funcion vacia en el componente padre y una variable de estado (useState) vacia o con un valor por defecto.
         La funcion puede ser como la funcion flecha previa a esta explicacion o como el siguiente ejemplo:
             const [datos, estableceDatos] = useState('');

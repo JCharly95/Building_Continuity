@@ -4,7 +4,7 @@ import Chart from 'react-apexcharts'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import SelFilBus from './Lista_Sensores/Lista'
+import SelFilBus from './Listas/Lista_Senso_Dbl'
 import { Search, Calendar, Clock } from 'react-feather'
 import AddSensor from './Agregar_Sensor/Form_Nue_Sensor'
 import React, { useEffect, useState, useRef } from 'react';
@@ -205,17 +205,19 @@ export default function BombLine_BMS (){
             }
         Luego se pasa esta funcion como propiedad a la invocacion al componente hijo como esta en SelFilBus debajo. 
             <Hijo hijoAPadre={hijoAPadre}/>
-        Nota: La propiedad puede tener el nombre que sea, para fines practicos en esta ocasion se dejo el nombre de la funcion.
-            <SelFilBus solFilBus={solFilBus}/>
-        Despues en el componente hijo se acepta la llamada a la funcion como propiedad (parametro si se usa function), como es para este caso
-            function menuDropdown({ solFilBus }) {
+        Nota: La propiedad puede tener el nombre que sea, por ejemplo.
+            <SelFilBus selFilBus={solFilBus}/>
+        Despues en el componente hijo se acepta la funcion, PERO con el nombre de la propiedad enviada (parametro si se usa function), 
+        como es para este caso:
+            function menuDropdown({ selFilBus }) {
                 ...
             }
-        Y dentro del hijo se crea algun elemento que genere un evento donde se pueda invocar la funcion del componente padre; para este caso
-        se hicieron botones de la lista desplegable
-            <DropdownItem onClick={()=>solFilBus("/niagaratest/Engine$20Battery")}>Bateria</DropdownItem>
-        Donde en el evento onClick, se invoca una arrowFunction para llamar al metodo solFilBus del componente padre y se "retorna" con
-        el valor modificado.
+        Y dentro del hijo se crea algun elemento que genere un evento donde se pueda establecer el nuevo valor de la propiedad ingresada;
+        para este caso, se hicieron botones de la lista desplegable
+            <DropdownItem onClick={()=>selFilBus("/niagaratest/Engine$20Battery")}>Bateria</DropdownItem>
+        Donde en el evento onClick, se invoca una arrowFunction para establecer el nuevo valor de la prop ingresada en el componente hijo
+        con lo cual el valor de retorno al componente padre sera "modificado" (pero mucho ojo, se estan trabajando con propiedades, no con
+        metodos remotos como se creia al inicio).
         Finalmente, en la funcion vacia del componente padre se aceptan los datos procesados como parametro y se establece el estado creado,
         por ejemplo:
             const hijoAPadre = (datoshijo) => {
@@ -236,7 +238,7 @@ export default function BombLine_BMS (){
                             </div>
                             <div className='col-md-auto'>
                                 <div className='row align-items-center mb-2'>
-                                    <SelFilBus solFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
+                                    <SelFilBus selFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
                                 </div>
                             </div>
                         </div>
@@ -290,7 +292,7 @@ export default function BombLine_BMS (){
                         </div>
                     </div>
                     <div className='col-md-auto'>
-                        <AddSensor addSenFunc={addSensBus} elemsBD={metadata} />
+                        <AddSensor senFunc={addSensBus} sensores={listaFil} elemsBD={metadata} />
                     </div>
                 </div>
                 <div className='row align-items-center border pt-3 pb-3'>
