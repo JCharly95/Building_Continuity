@@ -1,17 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import Bomba from './Grafica_Sensores/BombLine'
-import Auth from './Login/Autenticacion/Auth'
-import Login from './Login/Login'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Ruteo from "./Ruteo/direcciones";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-  {
-    /*
-    <Bomba />
-    */
-  }
-  <Auth />
+    <Ruteo />
   </React.StrictMode>
 );

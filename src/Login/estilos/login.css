@@ -4,6 +4,7 @@
     align-items: center;
     width: 100vw;
     height: 100vh;
+    background-color: #00304E;
 }
 
 .Auth-form {
@@ -32,4 +33,10 @@ label {
     font-size: 14px;
     font-weight: 600;
     color: rgb(34, 34, 34);
+}
+
+span.link-primary {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
 }
