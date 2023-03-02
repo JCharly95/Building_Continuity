@@ -19,23 +19,18 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
     const nomRef = useRef(null);
     // Variable de estado del formulario
     const [envioForm, setEnvioForm] = useState("No se ha enviado el formulario");
-
     //-------------------------Peticion con Axios para obtener la informacion--------------------------------------
     useEffect(() => {
         const obteInfo = async (estado) => {
             try {
-                const peticion = await axios.get('https://bms.controldigital.mx/data3.php?tipo_consulta=tipoSen');
-                // const peticion = await axios.get('https://bms.controldigital.mx/data2.php');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/data3.php?tipo_consulta=tipoSen');
                 estado(peticion.data);
             } catch (error) {
-                console.log("Hubo un problema en la obtencion de datos con axios");
+                console.log("Error en los datos");
             }
         }
         obteInfo(setElemsBD);
     }, []);
-
-    if (!elemsBD)
-        console.log("Ocurrio un problema en la obtencion de la informacion");
 //-------------------------------------------------------------------------------------------------------------
     // Metodo para abrir o cerrar el modal, segun el estado en el que este
     const abrirCerrarModal = () => {
@@ -86,7 +81,7 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
             // Este sera el formato a usar de axios para todas las consultas que alteren la base de datos, pero para diferenciarlos, el endpoint de la consulta (la URL) cambiara con la variable tipo_consulta, donde se colocara la direccion del metodo a usar. NOTA: Para hacer esto ultimo, se deberan generar las respectivas consultas en el archivo PHP del servidor, en este caso es data3
             axios({
                 method: 'post',
-                url: 'https://bms.controldigital.mx/data3.php?tipo_consulta=addSen',
+                url: 'https://app.buildingcontinuity.com.mx/data3.php?tipo_consulta=addSen',
                 data: infoCaptu,
                 config: { headers: {'Content-Type': 'multipart/form-data' }}
             }).then((respuesta) => {
@@ -97,17 +92,11 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
                     alert("El sensor que desea agregar ya esta asociado en la base de datos con otro nombre");
                 }
             });
-    
-            if (!envioForm)
-                console.log("Ocurrio un problema en el envio del informacion del formulario");
-    
             // Establecer el valor de retorno de la propiedad para agregarlo a la lista de opciones de seleccion de sensor en la grafica en el componente padre
             senFunc(sensores);
-            console.log("Sensores actualizados", sensores);
             abrirCerrarModal();
         }
     }
-
     return (
         <div>
             <div className="container-fluid">
@@ -151,35 +140,3 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
         </div>
     );
 }
-
-/*  MUCHO OJO; ESTA ES LA EXPLICACION VIEJA POR SI ME PIERDO UN POCO, LA NUEVA EXPLICACION ESTA EN BOMBLINE (por si acaso)
-
-    Explicacion rapida para pasar valores entre componentes react (hijo a padre)
-        Primero se crea una funcion vacia en el componente padre y una variable de estado (useState) vacia o con un valor por defecto.
-        La funcion puede ser como la funcion flecha previa a esta explicacion o como el siguiente ejemplo:
-            const [datos, estableceDatos] = useState('');
-            const hijoAPadre = () => {
-            
-            }
-        Luego se pasa esta funcion como propiedad a la invocacion al componente hijo como esta en SelFilBus debajo. 
-            <Hijo hijoAPadre={hijoAPadre}/>
-        Nota: La propiedad puede tener el nombre que sea, para fines practicos en esta ocasion se dejo el nombre de la funcion.
-            <SelFilBus solFilBus={solFilBus}/>
-        Despues en el componente hijo se acepta la llamada a la funcion como propiedad (parametro si se usa function), como es para este caso
-            function menuDropdown({ solFilBus }) {
-                ...
-            }
-        Y dentro del hijo se crea algun elemento que genere un evento donde se pueda invocar la funcion del componente padre; para este caso
-        se hicieron botones de la lista desplegable
-            <DropdownItem onClick={()=>solFilBus("/niagaratest/Engine$20Battery")}>Bateria</DropdownItem>
-        Donde en el evento onClick, se invoca una arrowFunction para llamar al metodo solFilBus del componente padre y se "retorna" con
-        el valor modificado.
-        Finalmente, en la funcion vacia del componente padre se aceptan los datos procesados como parametro y se establece el estado creado,
-        por ejemplo:
-            const hijoAPadre = (datoshijo) => {
-                estableceDatos(datoshijo);
-            }
-        O como quedo al final el metodo solFilBus previo a esta explicacion.
-        Finalmente para ver si es efectivo este elemento, se imprime el valor del estado en el componente padre usando el estado entre llaves.
-        Por ejemplo: el resultado del ejemplo teorico seria { datos }, ya que asi se nombro el useState inicial.
-*/

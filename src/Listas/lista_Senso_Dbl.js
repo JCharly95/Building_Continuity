@@ -4,14 +4,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
 export default function menuDropdown({ selFilBus, elemSel, title }) {
+    // Variable de estado para abrir/cerrar el menu desplegable
     const [dropdown, setDropdown] = useState(false);
+    // Variable de estado para establecer el valor a mostrar en el menu desplegable
     const [tituloMenu, setTituloMenu] = useState(title);
-
     // Metodo para abrir o cerrar la lista desplegable, segun el estado en el que este
     const abrirCerrarMenu = () => {
         setDropdown(!dropdown);
     }
-
     return (
         <div className="menuDesple">
             <Dropdown isOpen={dropdown} toggle={abrirCerrarMenu}>
@@ -29,18 +29,12 @@ export default function menuDropdown({ selFilBus, elemSel, title }) {
                                 } key={"TipSensor"+index} >{elemento.nombre}</DropdownItem>
                             );
                         })
-
-                        /*
-                            Ejemplo de creacion de elemento estatico para el menu desplegable
-                            <DropdownItem onClick={ () => solFilBus("/niagaratest/Engine$20Battery;Bateria")}>Bateria</DropdownItem>
-                         */
                     }
                 </DropdownMenu>
             </Dropdown>
         </div>
     );
 }
-
 /* 
     BATERÍA
         /niagaratest/Engine$20Battery

@@ -6,22 +6,24 @@ import { Button, Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 
 export default function LogoutForm() {
+    // Variable de estado para la obtencion de la navegacion y redireccionamiento usando el react-router
     const navegar = useNavigate();
+    // Variable de estado para la apertura o cierre del modal de aviso de errores
     const [modalError, setModalError] = useState(false);
+    // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
     const [modalErrMsg, setModalErrMsg] = useState("Hubo un problema al registrar el sensor");
     
     // Metodo para abrir o cerrar el modal, segun el estado en el que este
     const AbrCerrError = () => {
         setModalError(!modalError);
     }
-    
+    // Funcion para cerrar la sesion del usuario limpiando el localStorage y redirigiendo a login
     function cerrarSesion(){
         localStorage.clear();
         setModalErrMsg("Gracias por su atencion, cerrando sesion...");
-        navegar("/login");
         AbrCerrError();
+        navegar("/login");
     }
-
     return (
         <div>
             <div className="container-fluid">
