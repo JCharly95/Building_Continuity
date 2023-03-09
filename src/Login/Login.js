@@ -1,14 +1,14 @@
 import "./estilos/login.css"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, Eye, EyeOff } from 'react-feather';
+import { AlertTriangle, AlertCircle, Eye, EyeOff } from 'react-feather';
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useRef, useState } from "react"
 import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 
 export default function LoginForm() {
     // Banderas de verificacion de los campos
-    let valUser= false, valContra= false;
+    let valUser= false, valContra= false, namUser="";
     // Variable de estado para la obtencion de la navegacion y redireccionamiento usando el react-router
     const navegar = useNavigate();
     // Variable de estado para mostrar el campo de la contraseña
@@ -17,6 +17,8 @@ export default function LoginForm() {
     const [usersBD, setUsersBD] = useState([1]);
     // Variable de estado para la apertura o cierre del modal de aviso de errores
     const [modalError, setModalError] = useState(false);
+    // Variable de estado para la apertura o cierre del modal de avisos
+    const [modalAdv, setModalAdv] = useState(false);
     // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
     const [modalErrMsg, setModalErrMsg] = useState("Hubo un problema al intentar acceder");
     // Variables de referencia para la obtencion de valores de los campos del login
@@ -29,7 +31,7 @@ export default function LoginForm() {
     useEffect(() => {
         const obteInfo = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/data3.php?tipo_consulta=usuarios');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=usuarios');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
@@ -40,11 +42,15 @@ export default function LoginForm() {
     const AbrCerrError = () => {
         setModalError(!modalError);
     }
+    const AbrCerAdv = () => {
+        setModalAdv(!modalAdv);
+    }
     // Pasar el resultado de la consulta axios a un arreglo para operar con la informacion
     usersBD.map((usuario) => (
         usersArr.push({
             user: `${usuario.Correo}`,
-            contra: `${usuario.Contra}`
+            contra: `${usuario.Contra}`,
+            nombre: `${usuario.Nombre}`
         })
     ));
     // Verificacion de envio del formulario de acceso
@@ -78,6 +84,7 @@ export default function LoginForm() {
                 usersArr.map((userBus) => {
                     if(userBus.user === `${userRef.current.value}`){
                         valUser = true
+                        namUser = userBus.nombre
                     }
                     if(userBus.contra === `${passRef.current.value}`){
                         valContra = true
@@ -92,7 +99,9 @@ export default function LoginForm() {
     function redireccionar(){
         if(valUser && valContra){
             acceder("user", `${userRef.current.value}`);
-            navegar("/home")
+            setModalErrMsg(`${namUser}`);
+            AbrCerAdv();
+            setTimeout(() => (navegar("/home")), 2000);
         }
         else{
             if(!valUser){
@@ -110,9 +119,11 @@ export default function LoginForm() {
         }
     }
     // Si el usuario se logueo de manera satisfactoria se crea un elemento de localStorage para su navegacion
-    function acceder(clave, valor){
+    function acceder(clave, user){
         const session = {
-            info: valor,
+            info: user,
+            nameUs: namUser,
+            passLen: `${passRef.current.value}`.length,
             acceso : new Date()
         }
         localStorage.setItem(clave, JSON.stringify(session))
@@ -224,6 +235,18 @@ export default function LoginForm() {
                     </ModalHeader>
                     <ModalBody>
                         <Alert color="danger">
+                            {modalErrMsg}
+                        </Alert>
+                    </ModalBody>
+                </Modal>
+            </div>
+            <div id="ModalAdvice">
+                <Modal isOpen={modalAdv} toggle={AbrCerAdv}>
+                    <ModalHeader toggle={AbrCerrError}>
+                        Bienvenido <AlertCircle color="blue" size={30} />
+                    </ModalHeader>
+                    <ModalBody>
+                        <Alert color="success">
                             {modalErrMsg}
                         </Alert>
                     </ModalBody>

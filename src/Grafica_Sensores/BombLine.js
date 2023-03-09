@@ -3,7 +3,7 @@ import axios from 'axios'
 import Chart from 'react-apexcharts'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
-import LogoutForm from '../Login/logout'
+import BarraNavega from '../Navbar/barraNav'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { useNavigate } from 'react-router-dom'
 import SelFilBus from '../Listas/lista_Senso_Dbl'
@@ -45,7 +45,7 @@ export default function BombLine_BMS(){
         // Peticion para obtener los datos de historicrecord que se usaran en la grafica
         const obteInfo = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/data3.php?tipo_consulta=historico');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=historico');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
@@ -57,7 +57,7 @@ export default function BombLine_BMS(){
         //Peticion para obtener los valores de la tabla de registros de los sensores
         const obteSenso = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/data3.php?tipo_consulta=sensor');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=sensor');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
@@ -205,6 +205,7 @@ export default function BombLine_BMS(){
         /*<div onMouseMove={contaInacti} onPointerMove={contaInacti} onKeyDown={contaInacti}>*/
         return (
             <div>
+                <BarraNavega />
                 <div className='container-fluid border mt-3'>
                     <div className='row align-items-center border pt-3 pb-3'>
                         <div className='col-md-auto'>
@@ -270,11 +271,6 @@ export default function BombLine_BMS(){
                             <div className='row align-items-center mb-2'>
                                 <div className='col-md-auto'>
                                     <AddSensor senFunc={addSensBus} sensores={listaFil} />
-                                </div>
-                            </div>
-                            <div className='row align-items-center mb-2'>
-                                <div className='col-md-auto'>
-                                    <LogoutForm />
                                 </div>
                             </div>
                         </div>
