@@ -1,6 +1,8 @@
 // ** Third Party Components
 import axios from 'axios'
+import "../Estilos/estilosGen.css"
 import Chart from 'react-apexcharts'
+import Copyright from '../Footer/pie'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
 import BarraNavega from '../Navbar/barraNav'
@@ -45,7 +47,7 @@ export default function BombLine_BMS(){
         // Peticion para obtener los datos de historicrecord que se usaran en la grafica
         const obteInfo = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=historico');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=historico');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
@@ -57,7 +59,7 @@ export default function BombLine_BMS(){
         //Peticion para obtener los valores de la tabla de registros de los sensores
         const obteSenso = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=sensor');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=sensor');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
@@ -204,10 +206,10 @@ export default function BombLine_BMS(){
         }
         /*<div onMouseMove={contaInacti} onPointerMove={contaInacti} onKeyDown={contaInacti}>*/
         return (
-            <div>
+            <div className="pageSchema">
                 <BarraNavega />
                 <div className='container-fluid border mt-3'>
-                    <div className='row align-items-center border pt-3 pb-3'>
+                    <div className='row align-items-center border pt-3 pb-3 text-center'>
                         <div className='col-md-auto'>
                             <div className='row align-items-center'>
                                 <div className='col-md-auto'>
@@ -279,6 +281,7 @@ export default function BombLine_BMS(){
                         <Chart options={options} series={dataSeries} type="line" width="100%" height="280%" />
                     </div>
                 </div>
+                <Copyright />
             </div>
         );
     }

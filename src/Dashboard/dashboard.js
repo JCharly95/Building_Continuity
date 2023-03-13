@@ -1,6 +1,7 @@
 import React from "react";
+import "../Estilos/estilosGen.css"
+import Copyright from "../Footer/pie";
 import BarraNavega from '../Navbar/barraNav'
-import "../Login/estilos/login.css"
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from 'react-router-dom'
 import { Card, CardBody, CardTitle, CardSubtitle, CardText, CardImg } from "reactstrap";
@@ -26,7 +27,7 @@ export default function DashBoard(){
         fechAcc = getFecha(session.acceso)
 
         return(
-            <div>
+            <div className="pageSchema">
                 <BarraNavega />
                 <div className='container' style={{ padding: 50 }}>
                     <Card color="success">
@@ -52,6 +53,7 @@ export default function DashBoard(){
                         </CardBody>
                     </Card>
                 </div>
+                <Copyright />
             </div>
         );
     }

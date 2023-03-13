@@ -13,7 +13,7 @@ export default function menuDropdown({ selFilBus, elemSel, title }) {
         setDropdown(!dropdown);
     }
     return (
-        <div className="menuDesple">
+        <div className="btn">
             <Dropdown isOpen={dropdown} toggle={abrirCerrarMenu}>
                 <DropdownToggle caret>
                     {tituloMenu}

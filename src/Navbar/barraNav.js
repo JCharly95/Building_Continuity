@@ -1,7 +1,8 @@
+import "../Estilos/estilosGen.css"
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from 'react-router-dom'
-import { Nav, Navbar, NavItem, NavbarToggler, Collapse, NavLink, NavbarBrand } from "reactstrap";
+import { useNavigate, Link } from 'react-router-dom'
+import { Nav, Navbar, NavItem, NavbarToggler, NavLink, Collapse, NavbarBrand } from "reactstrap";
 
 export default function BarraNavega(){
     // Constante de historial de navegacion
@@ -19,25 +20,25 @@ export default function BarraNavega(){
     }else{
         return (
             <div>
-                <div>
-                    <Navbar style={{ backgroundColor: "#00304E"}} light expand="md">
-                        <NavbarBrand style={{ color: "white"}}>Building Continuity</NavbarBrand>
-                        <NavbarToggler onClick={() => { setNavBarSta(!navBarSta) }} />
-                        <Collapse isOpen={navBarSta} navbar>
-                            <Nav className="mr-auto">
-                                {
-                                    opcs.map((item, index) => {
-                                        return (
-                                            <NavItem key={"ItemLink"+index}>
-                                                <NavLink href={item.url} style={{ color: "white"}}>{item.title}</NavLink>
-                                            </NavItem>
-                                        );
-                                    })
-                                }
-                            </Nav>
-                        </Collapse>
-                    </Navbar>
-                </div >
+                <Navbar className="barraContainer" light expand="md">
+                    <NavbarBrand style={{color: "white"}}> Building Continuity </NavbarBrand>
+                    <NavbarToggler onClick={() => { setNavBarSta(!navBarSta) }} />
+                    <Collapse isOpen={navBarSta} navbar>
+                        <Nav className="mr-auto">
+                            {
+                                opcs.map((item, index) => {
+                                    return (
+                                        <NavItem key={"ItemLink"+index}>
+                                            <NavLink>
+                                                <Link to={item.url} className="enlace"> {item.title} </Link>
+                                            </NavLink>
+                                        </NavItem>
+                                    );
+                                })
+                            }
+                        </Nav>
+                    </Collapse>
+                </Navbar>
             </div>
         );
     }
@@ -51,16 +52,16 @@ export default function BarraNavega(){
 function listaOpcNav(){
     const listaOpc = [
         {
-            title: "Inicio",
+            title: "Grafica",
             url: "/home"
         },
         {
-            title: "Grafica",
-            url: "/grafica"
+            title: "Perfil",
+            url: "/perfil"
         },
         {
-            title: "Cerrar Session",
-            url: "/CSesion"
+            title: "Cerrar Sesion",
+            url: "/csesion"
         }
     ];
     return listaOpc;

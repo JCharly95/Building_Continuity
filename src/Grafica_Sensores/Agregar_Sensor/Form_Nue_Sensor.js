@@ -23,7 +23,7 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
     useEffect(() => {
         const obteInfo = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=tipoSen');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=tipoSen');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
@@ -81,7 +81,7 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
             // Este sera el formato a usar de axios para todas las consultas que alteren la base de datos, pero para diferenciarlos, el endpoint de la consulta (la URL) cambiara con la variable tipo_consulta, donde se colocara la direccion del metodo a usar. NOTA: Para hacer esto ultimo, se deberan generar las respectivas consultas en el archivo PHP del servidor, en este caso es data3
             axios({
                 method: 'post',
-                url: 'https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=addSen',
+                url: 'https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=addSen',
                 data: infoCaptu,
                 config: { headers: {'Content-Type': 'multipart/form-data' }}
             }).then((respuesta) => {
@@ -100,9 +100,11 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
     return (
         <div>
             <div className="container-fluid">
-                <Button color="dark" onClick={abrirCerrarModal}>
-                    <span>Agregar Filtro De Busqueda</span>
-                </Button>
+                <div className="text-center">
+                    <Button color="dark" onClick={abrirCerrarModal} className="btn">
+                        <span>Agregar Filtro De Busqueda</span>
+                    </Button>
+                </div>
                 <Modal isOpen={modal} toggle={abrirCerrarModal}>
                     <ModalHeader toggle={abrirCerrarModal}>
                         Agregar un Sensor a la Lista de Seleccion

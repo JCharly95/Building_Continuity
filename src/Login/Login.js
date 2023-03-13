@@ -1,5 +1,5 @@
-import "./estilos/login.css"
 import axios from "axios";
+import "../Estilos/estilosGen.css"
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, AlertCircle, Eye, EyeOff } from 'react-feather';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -31,7 +31,7 @@ export default function LoginForm() {
     useEffect(() => {
         const obteInfo = async (estado) => {
             try {
-                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/static/php/data.php?tipo_consulta=usuarios');
+                const peticion = await axios.get('https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=usuarios');
                 estado(peticion.data);
             } catch (error) {
                 console.log("Error en los datos");
