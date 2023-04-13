@@ -64,6 +64,7 @@ export default function BombLine_BMS(){
         }
         obteInfo(setMetadata);
     }, []);
+
     useEffect(() => {
         //Peticion para obtener los valores de la tabla de registros de los sensores
         const obteSenso = async (estado) => {
@@ -75,7 +76,6 @@ export default function BombLine_BMS(){
             }
         }
         obteSenso(setListaSenso);
-        
     }, []);
 
     useEffect(() => {
@@ -120,7 +120,8 @@ export default function BombLine_BMS(){
         metadata.map(
             (allData) => (
                 (tipInfoBus.split(";")[0]!=="404") ?
-                    (`${allData.HISTORY_ID}`.includes(tipInfoBus.split(";")[0])) ? regsBusqueda.push({
+                    (`${allData.HISTORY_ID}`.includes(tipInfoBus.split(";")[0])) ? 
+                        regsBusqueda.push({
                             ID: parseInt(`${allData.ID}`),
                             DATE: (new Date(parseInt(`${allData.TIMESTAMP}`))),
                             VALUE: parseFloat(parseFloat(`${allData.VALUE}`).toFixed(2))
@@ -240,7 +241,7 @@ export default function BombLine_BMS(){
             xaxis: {
                 type: 'datetime',
                 labels: {
-                    datetimeUTC: false
+                    datetimeUTC: false,
                 }
             },
             yaxis: {
@@ -254,7 +255,7 @@ export default function BombLine_BMS(){
             },
             tooltip: {
                 x: {
-                    format: "dd MMM yyyy; HH:ss"
+                    format: "dd MMM yyyy; HH:mm:ss"
                 },
             },
             noData: {
@@ -389,7 +390,7 @@ export default function BombLine_BMS(){
                             </div>
                         </div>
                     </div>
-                    <div id='areaGraf' className='row align-items-center border pt-3 pb-3'>
+                    <div id='areaGraf' className='row align-items-center border pt-3 pb-5 mb-2'>
                         <Chart options={options} series={dataSeries} type="line" width="100%" height="280%" />
                     </div>
                 </div>
