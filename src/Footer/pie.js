@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 //import { Box, Container, Row, Column, FooterLink, Heading } from "./FooterStyles";
 
 export default function Pie_Copyright(){
-    const copyright = "Ardu Security 2023 Copyright © Todos los derechos reservados"
+    const copyright = "Buiding Continuity 2023 Copyright © Todos los derechos reservados"
     // Constante de historial de navegacion
     const navegar = useNavigate();
     // Obteniendo la credencial del usuario logueado

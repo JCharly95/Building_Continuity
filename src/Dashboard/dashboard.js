@@ -1,19 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../Estilos/estilosGen.css"
 import Copyright from "../Footer/pie";
 import BarraNavega from '../Navbar/barraNav'
+import { AlertTriangle } from 'react-feather';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from 'react-router-dom'
-import { Card, CardBody, CardTitle, CardSubtitle, CardText, CardImg } from "reactstrap";
+import { Card, CardBody, CardTitle, CardSubtitle, CardText, CardImg, Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 
 export default function DashBoard(){
     // Constante de historial de navegacion
     const navegar = useNavigate();
     // Obteniendo la credencial del usuario logueado
     const usSession = localStorage.getItem("user");
+    // Variable de estado para la apertura o cierre del modal de aviso de errores
+    const [modalError, setModalError] = useState(false);
+    // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
+    const [modalErrMsg, setModalErrMsg] = useState("Ocurrio un error en la accion solicitada");
     // Datos del usuario para la credencial del perfil
     let session, userVal, nomVal, contraVal ="", fechAcc = "";
 
+    useEffect(() => {
+        // Agregando un listener para la deteccion de teclas al presionarse
+        document.addEventListener('keydown', (event) => {
+            if(event.key==="F12"){
+                event.preventDefault()
+                setModalErrMsg("Error: Accion no valida");
+                setModalError(!modalError);
+            }
+            if(event.key==="ContextMenu"){
+                event.preventDefault()
+                setModalErrMsg("Error: Accion no valida");
+                setModalError(!modalError);
+            }
+        }, true)
+    }, [modalError])
+    
+    // Apertura/Cierre del modal de errores
+    const AbrCerrError = () => {
+        setModalError(!modalError);
+    }
+    // Funcion para muestra del menu contextual
+    function contextMenu(event){
+        event.preventDefault()
+        setModalErrMsg("Error: Accion no valida");
+        AbrCerrError();
+    }
 //--------------Verificacion del local storage para ver si hay un usuario logueado-----------------------------
     // Si la credencial del usuario no esta almacenada en el localStorage, quiere decir que no ha iniciado sesion, por lo que se le retornara al login
     if(!usSession){
@@ -27,7 +58,7 @@ export default function DashBoard(){
         fechAcc = getFecha(session.acceso)
 
         return(
-            <div className="pageSchema">
+            <div className="pageSchema" onContextMenu={contextMenu}>
                 <BarraNavega />
                 <div className='container' style={{ padding: 50 }}>
                     <Card color="success">
@@ -52,6 +83,18 @@ export default function DashBoard(){
                             </div>
                         </CardBody>
                     </Card>
+                </div>
+                <div id="ModalError">
+                    <Modal isOpen={modalError} toggle={AbrCerrError}>
+                        <ModalHeader toggle={AbrCerrError}>
+                            Error <AlertTriangle color="red" size={30} />
+                        </ModalHeader>
+                        <ModalBody>
+                            <Alert color="danger">
+                                {modalErrMsg}
+                            </Alert>
+                        </ModalBody>
+                    </Modal>
                 </div>
                 <Copyright />
             </div>

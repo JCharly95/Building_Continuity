@@ -1,17 +1,22 @@
 // ** Third Party Components
-import axios from 'axios'
-import "../Estilos/estilosGen.css"
-import Chart from 'react-apexcharts'
-import Copyright from '../Footer/pie'
-import Flatpickr from 'react-flatpickr'
-import 'flatpickr/dist/themes/light.css'
-import BarraNavega from '../Navbar/barraNav'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import { useNavigate } from 'react-router-dom'
-import SelFilBus from '../Listas/lista_Senso_Dbl'
-import { Search, Calendar, Clock } from 'react-feather'
-import AddSensor from './Agregar_Sensor/form_Nue_Sensor'
+import axios from 'axios';
+import './hideOptDown.css';
+import { jsPDF } from 'jspdf';
+import "../Estilos/estilosGen.css";
+import Chart from 'react-apexcharts';
+import Copyright from '../Footer/pie';
+import html2canvas from 'html2canvas';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/themes/light.css';
+import BarraNavega from '../Navbar/barraNav';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { AlertTriangle } from 'react-feather';
+import { useNavigate } from 'react-router-dom';
+import SelFilBus from '../Listas/lista_Senso_Dbl';
+import { Search, Calendar, Clock } from 'react-feather';
+import AddSensor from './Agregar_Sensor/form_Nue_Sensor';
 import React, { useEffect, useState, useRef } from 'react';
+import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 
 export default function BombLine_BMS(){
 //------------------------------Estableciendo las variables de trabajo-----------------------------------------
@@ -28,6 +33,10 @@ export default function BombLine_BMS(){
     const navegar = useNavigate();
     // Obteniendo la credencial del usuario logueado
     const usSession = localStorage.getItem("user");
+    // Variable de estado para la apertura o cierre del modal de aviso de errores
+    const [modalError, setModalError] = useState(false);
+    // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
+    const [modalErrMsg, setModalErrMsg] = useState("Ocurrio un error en la accion solicitada");
     // Arreglo de valores para el promedio y para concatenacion de elementos en la grafica
     const arrVals = [], info = [];
     // Flatpickr; Preparacion de constantes de referencia para limpieza de campos input
@@ -66,8 +75,29 @@ export default function BombLine_BMS(){
             }
         }
         obteSenso(setListaSenso);
-    }, []);
         
+    }, []);
+
+    useEffect(() => {
+        // Agregando un listener para la deteccion de teclas al presionarse
+        document.addEventListener('keydown', (event) => {
+            if(event.key==="F12"){
+                event.preventDefault()
+                setModalErrMsg("Error: Accion no valida");
+                setModalError(!modalError);
+            }
+            if(event.key==="ContextMenu"){
+                event.preventDefault()
+                setModalErrMsg("Error: Accion no valida");
+                setModalError(!modalError);
+            }
+        }, true)
+    }, [modalError])
+
+    // Apertura/Cierre del modal de errores
+    const AbrCerrError = () => {
+        setModalError(!modalError);
+    }
     /*function contaInacti(){
         clearTimeout(contActivi);
         contActivi = setTimeout(userInacti, 10000);
@@ -88,12 +118,12 @@ export default function BombLine_BMS(){
         // Por ejemplo: en este caso es la linea 3
         const regsBusqueda = [];
         metadata.map(
-            (info) => (
+            (allData) => (
                 (tipInfoBus.split(";")[0]!=="404") ?
-                    (`${info.HISTORY_ID}`.includes(tipInfoBus.split(";")[0])) ? regsBusqueda.push({
-                            ID: parseInt(`${info.ID}`),
-                            DATE: (new Date(parseInt(`${info.TIMESTAMP}`))),
-                            VALUE: parseFloat(parseFloat(`${info.VALUE}`).toFixed(2))
+                    (`${allData.HISTORY_ID}`.includes(tipInfoBus.split(";")[0])) ? regsBusqueda.push({
+                            ID: parseInt(`${allData.ID}`),
+                            DATE: (new Date(parseInt(`${allData.TIMESTAMP}`))),
+                            VALUE: parseFloat(parseFloat(`${allData.VALUE}`).toFixed(2))
                         }
                     ) : null
                 : null
@@ -156,6 +186,55 @@ export default function BombLine_BMS(){
                     initialAnimation: {
                         enabled: false
                     }
+                },
+                toolbar: {
+                    tools: {
+                        customIcons: [{
+                            icon: 'PDF',
+                            title: 'Exportar a PDF',
+                            class: 'custom-icon',
+                            click: async function exportPDF(){
+                                // Obtener el area a exportar
+                                const areaExportar = document.getElementById("areaGraf");
+                                // Crear el objeto html2canvas para exportar
+                                const contePDF = await html2canvas(areaExportar);
+                                // Obtener el contenido del elemento canvas como una imagen para otros recursos
+                                const dataInfo = contePDF.toDataURL("image/png");
+                                // Obtener anchura y altura del div de la grafica, asi como variables para establecerle padding a la imagen con relacion a las dimensiones del div que la contiene
+                                let ancho = areaExportar.clientWidth, alto = areaExportar.clientHeight, altoEspa, anchoEspa;
+
+                                // Si la grafica es mas ancha que alta se creara un PDF con formato "landscape"/horizontal para su impresion y se establecera la unidad de dimensiones de la imagen en pixeles
+                                // En caso contrario, se establecera la salida como "portrait"/vertical y la misma unidad de dimensiones
+                                if (ancho > alto) {
+                                    let pdfArchi = new jsPDF('l', 'px', [ancho, alto]);
+                                    ancho=pdfArchi.internal.pageSize.getWidth();
+                                    alto=pdfArchi.internal.pageSize.getHeight();
+                                    anchoEspa=ancho-20;
+                                    altoEspa=alto-20;
+                                    pdfArchi.addImage(dataInfo, 'PNG', 10, 10, anchoEspa, altoEspa);
+                                    pdfArchi.save(`BMS Grafica de ${getFecha()}; ${dataSeries[0].name}.pdf`);
+                                }
+                                else {
+                                    let pdfArchi = new jsPDF('p','px', [alto, ancho]);
+                                    ancho=pdfArchi.internal.pageSize.getWidth();
+                                    alto=pdfArchi.internal.pageSize.getHeight();
+                                    anchoEspa=ancho-20;
+                                    altoEspa=alto-20;
+                                    pdfArchi.addImage(dataInfo, 'PNG', 10, 10, anchoEspa, altoEspa);
+                                    pdfArchi.save(`BMS Grafica de ${getFecha()}; ${dataSeries[0].name}.pdf`);
+                                }
+                            }
+                        }]
+                    },
+                    export: {
+                        csv: {
+                            headerCategory: "Fecha",
+                            filename: `BMS Grafica de ${getFecha()}; ${dataSeries[0].name}`
+                        },
+                        svg: {
+                            filename: `BMS Grafica de ${getFecha()}; ${dataSeries[0].name}`
+                        }
+                    }
                 }
             },
             xaxis: {
@@ -204,9 +283,42 @@ export default function BombLine_BMS(){
         const solFilBus = (filBus) => {
             setTipInfoBus(filBus);
         }
+        // Funcion para muestra del menu contextual
+        function contextMenu(event){
+            event.preventDefault()
+            setModalErrMsg("Error: Accion no valida");
+            AbrCerrError();
+        }
+        function getFecha(){
+            let fecha, dia="", mes="", hora="", min="";
+            fecha = new Date()
+        
+            // Agregar un cero por si el dia tiene solo un digito
+            if(fecha.getDate().toString().length === 1)
+                dia="0"+fecha.getDate().toString()
+            else
+                dia=fecha.getDate()
+            // Agregar un cero por si el mes tiene un solo digito
+            if(fecha.getMonth().toString().length === 1)
+                mes="0"+fecha.getMonth().toString()
+            else
+                mes=fecha.getMonth()
+            // Agregar un cero por si la hora solo tiene un digito
+            if(fecha.getHours().toString().length === 1)
+                hora="0"+fecha.getHours().toString()
+            else    
+                hora=fecha.getHours()
+            // Agregar un cero por si el minuto tiene un solo digito
+            if(fecha.getMinutes().toString().length === 1)
+                min="0"+fecha.getMinutes().toString()
+            else
+                min=fecha.getMinutes()
+                
+            return(`${fecha.getFullYear()}-${mes}-${dia}_${hora}.${min}`);
+        }
         /*<div onMouseMove={contaInacti} onPointerMove={contaInacti} onKeyDown={contaInacti}>*/
         return (
-            <div className="pageSchema">
+            <div className="pageSchema" onContextMenu={contextMenu}>
                 <BarraNavega />
                 <div className='container-fluid border mt-3'>
                     <div className='row align-items-center border pt-3 pb-3 text-center'>
@@ -277,9 +389,21 @@ export default function BombLine_BMS(){
                             </div>
                         </div>
                     </div>
-                    <div className='row align-items-center border pt-3 pb-3'>
+                    <div id='areaGraf' className='row align-items-center border pt-3 pb-3'>
                         <Chart options={options} series={dataSeries} type="line" width="100%" height="280%" />
                     </div>
+                </div>
+                <div id="ModalError">
+                    <Modal isOpen={modalError} toggle={AbrCerrError}>
+                        <ModalHeader toggle={AbrCerrError}>
+                            Error <AlertTriangle color="red" size={30} />
+                        </ModalHeader>
+                        <ModalBody>
+                            <Alert color="danger">
+                                {modalErrMsg}
+                            </Alert>
+                        </ModalBody>
+                    </Modal>
                 </div>
                 <Copyright />
             </div>
