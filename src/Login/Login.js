@@ -1,10 +1,11 @@
 import axios from "axios";
-import "../Estilos/estilosGen.css"
-import { useNavigate } from "react-router-dom";
-import { AlertTriangle, AlertCircle, Eye, EyeOff } from 'react-feather';
+import "../Estilos/estilosGen.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useRef, useState } from "react"
+import { useNavigate } from "react-router-dom";
+import RecuperContra from "./ForgotPass/recuContra";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
+import { AlertTriangle, AlertCircle, Eye, EyeOff } from 'react-feather';
 
 export default function LoginForm(){
     // Banderas de verificacion de los campos
@@ -310,6 +311,9 @@ export default function LoginForm(){
                                 </span>
                             </div>
                         </div>
+                    </div>
+                    <div className="form-group">
+                        <RecuperContra/>
                     </div>
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit" className="btn btn-primary" onClick={veriForm}> Acceder </button>
