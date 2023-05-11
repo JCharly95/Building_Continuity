@@ -48,8 +48,6 @@ export default function BombLine_BMS(){
         nombre: `${sensor.Nombre}`,
         valor: `${sensor.ID_}`
     })));
-    /* Variable de contador para inactividad
-    let contActivi;*/
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------Peticiones con Axios para obtener la informacion------------------------------------
     useEffect(() => {
@@ -98,15 +96,6 @@ export default function BombLine_BMS(){
     const AbrCerrError = () => {
         setModalError(!modalError);
     }
-    /*function contaInacti(){
-        clearTimeout(contActivi);
-        contActivi = setTimeout(userInacti, 10000);
-    }
-    function userInacti(){
-        //localStorage.clear()
-        //navegar("/login");
-        alert("Tiempo de sesion expirado")
-    }*/
 //-------------------------------------------------------------------------------------------------------------
 //--------------Verificacion del local storage para ver si hay un usuario logueado-----------------------------
     // Si la credencial del usuario no esta almacenada en el localStorage, quiere decir que no ha iniciado sesion, por lo que se le retornara al login
@@ -115,7 +104,6 @@ export default function BombLine_BMS(){
     }else{
         //contaInacti();
     //----Obtencion de todos los registros que coincidan con el nombre/identificador de busqueda-----------
-        // Por ejemplo: en este caso es la linea 3
         const regsBusqueda = [];
         metadata.map(
             (allData) => (
@@ -124,7 +112,8 @@ export default function BombLine_BMS(){
                         regsBusqueda.push({
                             ID: parseInt(`${allData.ID}`),
                             DATE: (new Date(parseInt(`${allData.TIMESTAMP}`))),
-                            VALUE: parseFloat(parseFloat(`${allData.VALUE}`).toFixed(2))
+                            VALUE: parseFloat(parseFloat(`${allData.VALUE}`).toFixed(2)),
+                            STATUS: (`${allData.STATUS_TAG}`==="{ok}") ? "Activo" : (`${allData.STATUS_TAG}`==="{down}") ? "Inactivo" : "Indefinido"
                         }
                     ) : null
                 : null
@@ -160,29 +149,23 @@ export default function BombLine_BMS(){
         if(arrVals.length > 0){
             const promedio = parseFloat((arrVals.reduce((valPrev, valAct) => valAct += valPrev) / arrVals.length).toFixed(2));
     
-            regsBusqueda.map(function(registro) {
+            regsBusqueda.map(function(registro){
                 const fecha = registro.DATE, valor = registro.VALUE;
                 // Si se realizo la limpieza de seleccion de rangos de fechas no se tendran valores, por lo cual solo se retornara la funcion
                 if(fechIni==="" || fechFin==="" || (fechIni==="" && fechFin===""))
                     return null;
                 /* Ya que el promedio depende del resultado de la consulta solo en este punto se puede hacer el filtrado de datos junto con el parametro del promedio.
                 Entonces si la fecha se comprende entre la inicial y la final, ademas de ser mayor al promedio (para que no haya tantos registros) se incoporara el registro al arreglo de valores para la grafica*/
-                if(fecha > fechIni && fecha < fechFin && valor > promedio)
+                if((fecha > fechIni) && (fecha < fechFin) && (valor > promedio))
                     info.push([fecha, valor])
                 return 0;
             });
         }
+        console.log("Arreglo de info de la grafica: ", info)
     //----------------------------------------------------------------------------------------------------
     //----------------Preparacion de las opciones de configuracion para la grafica------------------------
-        const dataSeries = [
-            {
-                name: `Registros ${tipInfoBus.split(";")[1]}`,
-                data: info
-            }
-        ];
         const options = {
             chart: {
-                type: "line",
                 animations: {
                     initialAnimation: {
                         enabled: false
@@ -195,34 +178,27 @@ export default function BombLine_BMS(){
                             title: 'Exportar a PDF',
                             class: 'custom-icon',
                             click: async function exportPDF(){
-                                // Obtener el area a exportar
                                 const areaExportar = document.getElementById("areaGraf");
-                                // Crear el objeto html2canvas para exportar
                                 const contePDF = await html2canvas(areaExportar);
-                                // Obtener el contenido del elemento canvas como una imagen para otros recursos
                                 const dataInfo = contePDF.toDataURL("image/png");
-                                // Obtener anchura y altura del div de la grafica, asi como variables para establecerle padding a la imagen con relacion a las dimensiones del div que la contiene
                                 let ancho = areaExportar.clientWidth, alto = areaExportar.clientHeight, altoEspa, anchoEspa;
-
-                                // Si la grafica es mas ancha que alta se creara un PDF con formato "landscape"/horizontal para su impresion y se establecera la unidad de dimensiones de la imagen en pixeles
-                                // En caso contrario, se establecera la salida como "portrait"/vertical y la misma unidad de dimensiones
-                                if (ancho > alto) {
+                                if(ancho > alto){
                                     let pdfArchi = new jsPDF('l', 'px', [ancho, alto]);
                                     ancho=pdfArchi.internal.pageSize.getWidth();
                                     alto=pdfArchi.internal.pageSize.getHeight();
                                     anchoEspa=ancho-20;
                                     altoEspa=alto-20;
                                     pdfArchi.addImage(dataInfo, 'PNG', 10, 10, anchoEspa, altoEspa);
-                                    pdfArchi.save(`BMS Grafica de ${getFecha()}; ${dataSeries[0].name}.pdf`);
+                                    pdfArchi.save(`BMS Grafica de ${getFecha()}; Registros ${tipInfoBus.split(";")[1]}.pdf`);
                                 }
-                                else {
+                                else{
                                     let pdfArchi = new jsPDF('p','px', [alto, ancho]);
                                     ancho=pdfArchi.internal.pageSize.getWidth();
                                     alto=pdfArchi.internal.pageSize.getHeight();
                                     anchoEspa=ancho-20;
                                     altoEspa=alto-20;
                                     pdfArchi.addImage(dataInfo, 'PNG', 10, 10, anchoEspa, altoEspa);
-                                    pdfArchi.save(`BMS Grafica de ${getFecha()}; ${dataSeries[0].name}.pdf`);
+                                    pdfArchi.save(`BMS Grafica de ${getFecha()}; Registros ${tipInfoBus.split(";")[1]}.pdf`);
                                 }
                             }
                         }]
@@ -230,14 +206,18 @@ export default function BombLine_BMS(){
                     export: {
                         csv: {
                             headerCategory: "Fecha",
-                            filename: `BMS Grafica de ${getFecha()}; ${dataSeries[0].name}`
+                            filename: `BMS Grafica de ${getFecha()}; Registros ${tipInfoBus.split(";")[1]}`
                         },
                         svg: {
-                            filename: `BMS Grafica de ${getFecha()}; ${dataSeries[0].name}`
+                            filename: `BMS Grafica de ${getFecha()}; Registros ${tipInfoBus.split(";")[1]}`
                         }
                     }
                 }
             },
+            series: [{
+                name: `Registro ${tipInfoBus.split(";")[1]}`,
+                data: info
+            }],
             xaxis: {
                 type: 'datetime',
                 labels: {
@@ -246,20 +226,41 @@ export default function BombLine_BMS(){
             },
             yaxis: {
                 labels: {
-                    offsetX: 24,
-                    offsetY: -5
-                },
-                tooltip: {
-                    enabled: true
+                    offsetX: 0,
+                    offsetY: 0
                 }
             },
             tooltip: {
                 x: {
                     format: "dd MMM yyyy; HH:mm:ss"
                 },
+                custom: function({series, seriesIndex, dataPointIndex, w}){
+                    for(let cont=0; cont<regsBusqueda.length; cont++){
+                        const valor = regsBusqueda[cont].VALUE, status = regsBusqueda[cont].STATUS;
+                        if(valor === series[seriesIndex][dataPointIndex]){
+                            if(status === "Activo"){
+                                return '<div class="arrow_box"><strong><span>' +
+                                    w.config.series[seriesIndex].name + ':<br> Valor: ' + series[seriesIndex][dataPointIndex] +
+                                    '; <br>Estado: <span class="text-success">Activo</span></span></strong></div>'
+                            }else if(status === "Inactivo"){
+                                return '<div class="arrow_box"><strong><span>' +
+                                    w.config.series[seriesIndex].name + ':<br> Valor: ' + series[seriesIndex][dataPointIndex] +
+                                    '; <br>Estado: <span class="text-danger">Inactivo</span></span></strong></div>'
+                            }else{
+                                return '<div class="arrow_box"><strong><span>' +
+                                    w.config.series[seriesIndex].name + ':<br> Valor: ' + series[seriesIndex][dataPointIndex] +
+                                    '; <br>Estado: <span class="text-secondary">Indefinido</span></span></strong></div>'
+                            }
+                        }
+                    }
+                }
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3
             },
             noData: {
-                text: 'Informacion no disponible'
+                text: 'Cargando información...'
             }
         };
     //-------------------------------------------------------------------------------------------------
@@ -293,7 +294,6 @@ export default function BombLine_BMS(){
         function getFecha(){
             let fecha, dia="", mes="", hora="", min="";
             fecha = new Date()
-        
             // Agregar un cero por si el dia tiene solo un digito
             if(fecha.getDate().toString().length === 1)
                 dia="0"+fecha.getDate().toString()
@@ -390,8 +390,8 @@ export default function BombLine_BMS(){
                             </div>
                         </div>
                     </div>
-                    <div id='areaGraf' className='row align-items-center border pt-3 pb-5 mb-2'>
-                        <Chart options={options} series={dataSeries} type="line" width="100%" height="280%" />
+                    <div id='areaGraf' className='row align-items-center border pt-3 pb-5 mb-3'>
+                        <Chart options={options} series={options.series} type="line" width="100%" height="280%" />
                     </div>
                 </div>
                 <div id="ModalError">
