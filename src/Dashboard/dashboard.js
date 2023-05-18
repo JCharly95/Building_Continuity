@@ -1,5 +1,4 @@
 import "../Estilos/estilosGen.css"
-import setupInacti from "../Login/inactiUser";
 import Copyright from "../Footer/pie";
 import BarraNavega from '../Navbar/barraNav'
 import { AlertTriangle } from 'react-feather';
