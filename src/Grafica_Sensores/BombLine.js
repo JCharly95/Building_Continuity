@@ -1,4 +1,3 @@
-// ** Third Party Components
 import axios from 'axios';
 import './hideOptDown.css';
 import { jsPDF } from 'jspdf';
@@ -48,6 +47,8 @@ export default function BombLine_BMS(){
         nombre: `${sensor.Nombre}`,
         valor: `${sensor.ID_}`
     })));
+    // Contador temporal para inactividad
+    let timeoutID;
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------Peticiones con Axios para obtener la informacion------------------------------------
     useEffect(() => {
@@ -96,13 +97,46 @@ export default function BombLine_BMS(){
     const AbrCerrError = () => {
         setModalError(!modalError);
     }
+//-----------------------------Codigo para el funcionamiento de Inactividad------------------------------------
+    function SetupInacti(){
+        // Agregando los listener de los eventos en pantalla
+        document.addEventListener("mousemove", resetTimer, false);
+        document.addEventListener("mousedown", resetTimer, false);
+        document.addEventListener("keypress", resetTimer, false);
+        document.addEventListener("DOMMouseScroll", resetTimer, false);
+        document.addEventListener("mousewheel", resetTimer, false);
+        document.addEventListener("touchmove", resetTimer, false);
+        document.addEventListener("MSPointerMove", resetTimer, false);
+        // Arrancar el contador por primera vez
+        startTimer();
+        // UseEffect para hacer mas organica la transicion de salida cuando el tiempo de inactividad se acabe
+        useEffect(() => {
+            setTimeout(() => {
+                alert("Aviso: \n- El sistema cerrara la sesion por inactividad. \nNOTA:\n- Este aviso puede salir en multiples ocasiones.");
+                navegar("/login");
+            }, timeoutID);
+        }, []) 
+    }
+    function startTimer(){
+        // Valor del temporizador establecido en milisegundos (5 minutos)
+        timeoutID = 300000;
+    }
+    function resetTimer(e){
+        clearTimeout(timeoutID);
+        goActive();
+    }
+    function goActive(){
+        // do something
+        startTimer();
+    }
 //-------------------------------------------------------------------------------------------------------------
 //--------------Verificacion del local storage para ver si hay un usuario logueado-----------------------------
     // Si la credencial del usuario no esta almacenada en el localStorage, quiere decir que no ha iniciado sesion, por lo que se le retornara al login
     if(!usSession){
         navegar("/login");
     }else{
-        //contaInacti();
+        // Invocacion del metodo de inactividad en cuanto se accede a la pagina en cuestion
+        SetupInacti()
     //----Obtencion de todos los registros que coincidan con el nombre/identificador de busqueda-----------
         const regsBusqueda = [];
         metadata.map(
@@ -161,7 +195,6 @@ export default function BombLine_BMS(){
                 return 0;
             });
         }
-        console.log("Arreglo de info de la grafica: ", info)
     //----------------------------------------------------------------------------------------------------
     //----------------Preparacion de las opciones de configuracion para la grafica------------------------
         const options = {

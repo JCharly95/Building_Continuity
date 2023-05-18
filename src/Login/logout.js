@@ -1,17 +1,17 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import "bootstrap/dist/css/bootstrap.min.css";
 import { AlertCircle } from 'react-feather';
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
-import { useNavigate } from "react-router-dom";
 
-export default function LogoutForm() {
+export default function LogoutForm(){
     // Variable de estado para la obtencion de la navegacion y redireccionamiento usando el react-router
     const navegar = useNavigate();
     // Variable de estado para la apertura o cierre del modal de aviso de errores
     const [modalAdv, setModalAdv] = useState(false);
     // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
-    const [modalAdvMsg, setModalAdvMsg] = useState("Hubo un problema al registrar el sensor");
+    const [modalAdvMsg, setModalAdvMsg] = useState("Esperando el estado de respuesta...");
 
     useEffect(() => {
         localStorage.clear();
