@@ -58,7 +58,7 @@ export default function DashBoard(){
             contaInacti = setTimeout(() => {    // Temporizador establecido a 5 minutos, en milisegundos
                 alert("Aviso: \n- El sistema cerrará la sesion por inactividad. \nNOTA:\n- Este aviso puede salir en multiples ocasiones.");
                 navegar("/login");
-            }, 30000);
+            }, 300000);
             // 300000 = 5 minutos, 60000 = 1 minuto, 30000 = 30 segundos
         }
         function resetTimer(e){
