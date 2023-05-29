@@ -9,11 +9,11 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/light.css';
 import BarraNavega from '../Navbar/barraNav';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { AlertTriangle } from 'react-feather';
 import { useNavigate } from 'react-router-dom';
 import SelFilBus from '../Listas/lista_Senso_Dbl';
 import { Search, Calendar, Clock } from 'react-feather';
 import AddSensor from './Agregar_Sensor/form_Nue_Sensor';
+import { AlertTriangle, AlertCircle } from 'react-feather';
 import React, { useEffect, useState, useRef } from 'react';
 import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 
@@ -34,6 +34,8 @@ export default function BombLine_BMS(){
     const usSession = localStorage.getItem("user");
     // Variable de estado para la apertura o cierre del modal de aviso de errores
     const [modalError, setModalError] = useState(false);
+    // Variable de estado para la apertura o cierre del modal de avisos
+    const [modalAdv, setModalAdv] = useState(false);
     // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
     const [modalErrMsg, setModalErrMsg] = useState("Ocurrio un error en la accion solicitada");
     // Arreglo de valores para el promedio y para concatenacion de elementos en la grafica
@@ -47,8 +49,6 @@ export default function BombLine_BMS(){
         nombre: `${sensor.Nombre}`,
         valor: `${sensor.ID_}`
     })));
-    // Contador temporal para inactividad
-    let timeoutID;
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------Peticiones con Axios para obtener la informacion------------------------------------
     useEffect(() => {
@@ -62,9 +62,7 @@ export default function BombLine_BMS(){
             }
         }
         obteInfo(setMetadata);
-    }, []);
 
-    useEffect(() => {
         //Peticion para obtener los valores de la tabla de registros de los sensores
         const obteSenso = async (estado) => {
             try {
@@ -92,51 +90,53 @@ export default function BombLine_BMS(){
             }
         }, true)
     }, [modalError])
-
+//-----------------------------Codigo para el funcionamiento de Inactividad------------------------------------
+    useEffect(() => {
+        setModalAdv(true)
+        let contaInacti;
+        function setupInacti(){     // Preparacion para el procedimiento de inactividad
+            // Agregando los listener de los eventos en pantalla
+            document.addEventListener('wheel', resetTimer, false);
+            document.addEventListener('scroll', resetTimer, false);
+            document.addEventListener('keydown', resetTimer, false);
+            document.addEventListener('mousemove', resetTimer, false);
+            document.addEventListener('mousedown', resetTimer, false);
+            document.addEventListener('touchmove', resetTimer, false);
+            document.addEventListener('touchstart', resetTimer, false);
+            document.addEventListener('pointermove', resetTimer, false);
+            document.addEventListener('pointerdown', resetTimer, false);
+            document.addEventListener('pointerenter', resetTimer, false);
+            iniciarConteo();
+        }
+        // Funciones de inactividad
+        function iniciarConteo(){
+            contaInacti = setTimeout(() => {    // Temporizador establecido a 5 minutos, en milisegundos
+                alert("Aviso: \n- El sistema cerrará la sesion por inactividad. \nNOTA:\n- Este aviso puede salir en multiples ocasiones.");
+                navegar("/login");
+            }, 300000);
+            // 300000 = 5 minutos, 60000 = 1 minuto, 30000 = 30 segundos
+        }
+        function resetTimer(e){
+            clearTimeout(contaInacti);  // Limpiar/Eliminar valor actual del contador
+            iniciarConteo();    // Reiniciar el contador
+        }
+        setupInacti();  // Arrancar mecanismo de inactividad    
+    }, [navegar])
+//-------------------------------------------------------------------------------------------------------------
     // Apertura/Cierre del modal de errores
     const AbrCerrError = () => {
         setModalError(!modalError);
     }
-//-----------------------------Codigo para el funcionamiento de Inactividad------------------------------------
-    function SetupInacti(){
-        // Agregando los listener de los eventos en pantalla
-        document.addEventListener("mousemove", resetTimer, false);
-        document.addEventListener("mousedown", resetTimer, false);
-        document.addEventListener("keypress", resetTimer, false);
-        document.addEventListener("DOMMouseScroll", resetTimer, false);
-        document.addEventListener("mousewheel", resetTimer, false);
-        document.addEventListener("touchmove", resetTimer, false);
-        document.addEventListener("MSPointerMove", resetTimer, false);
-        // Arrancar el contador por primera vez
-        startTimer();
-        // UseEffect para hacer mas organica la transicion de salida cuando el tiempo de inactividad se acabe
-        useEffect(() => {
-            setTimeout(() => {
-                alert("Aviso: \n- El sistema cerrara la sesion por inactividad. \nNOTA:\n- Este aviso puede salir en multiples ocasiones.");
-                navegar("/login");
-            }, timeoutID);
-        }, []) 
+    const AbrCerAdv = () => {
+        setModalAdv(!modalAdv);
     }
-    function startTimer(){
-        // Valor del temporizador establecido en milisegundos (5 minutos)
-        timeoutID = 300000;
-    }
-    function resetTimer(e){
-        clearTimeout(timeoutID);
-        goActive();
-    }
-    function goActive(){
-        // do something
-        startTimer();
-    }
-//-------------------------------------------------------------------------------------------------------------
 //--------------Verificacion del local storage para ver si hay un usuario logueado-----------------------------
     // Si la credencial del usuario no esta almacenada en el localStorage, quiere decir que no ha iniciado sesion, por lo que se le retornara al login
     if(!usSession){
         navegar("/login");
     }else{
         // Invocacion del metodo de inactividad en cuanto se accede a la pagina en cuestion
-        SetupInacti()
+        //SetupInacti()
     //----Obtencion de todos los registros que coincidan con el nombre/identificador de busqueda-----------
         const regsBusqueda = [];
         metadata.map(
@@ -293,7 +293,7 @@ export default function BombLine_BMS(){
                 width: 3
             },
             noData: {
-                text: 'Cargando información...'
+                text: 'Preparando información, aguarde por favor...'
             }
         };
     //-------------------------------------------------------------------------------------------------
@@ -350,8 +350,8 @@ export default function BombLine_BMS(){
                 
             return(`${fecha.getFullYear()}-${mes}-${dia}_${hora}.${min}`);
         }
-        /*<div onMouseMove={contaInacti} onPointerMove={contaInacti} onKeyDown={contaInacti}>*/
         return (
+
             <div className="pageSchema" onContextMenu={contextMenu}>
                 <BarraNavega />
                 <div className='container-fluid border mt-3'>
@@ -435,6 +435,18 @@ export default function BombLine_BMS(){
                         <ModalBody>
                             <Alert color="danger">
                                 {modalErrMsg}
+                            </Alert>
+                        </ModalBody>
+                    </Modal>
+                </div>
+                <div id="ModalAdvice">
+                    <Modal isOpen={modalAdv} toggle={AbrCerAdv}>
+                        <ModalHeader toggle={AbrCerAdv}>
+                            Advertencia <AlertCircle color="blue" size={30} />
+                        </ModalHeader>
+                        <ModalBody>
+                            <Alert color="success">
+                                NOTA: Si la consulta de datos que desea realizar contiene muchos registros, la grafica podria tardar en cargar. <br/> Gracias por su comprensión.
                             </Alert>
                         </ModalBody>
                     </Modal>

@@ -21,7 +21,7 @@ export default function LoginForm(){
     // Variable de estado para la apertura o cierre del modal de avisos
     const [modalAdv, setModalAdv] = useState(false);
     // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
-    const [modalErrMsg, setModalErrMsg] = useState("Hubo un problema al intentar acceder");
+    const [modalMsg, setModalMsg] = useState("Hubo un problema al intentar acceder");
     // Variables de referencia para la obtencion de valores de los campos del login
     const userRef = useRef(null);
     const passRef = useRef(null);
@@ -46,12 +46,12 @@ export default function LoginForm(){
         document.addEventListener('keydown', (event) => {
             if(event.key==="F12"){
                 event.preventDefault()
-                setModalErrMsg("Error: Accion no valida");
+                setModalMsg("Error: Accion no valida");
                 setModalError(!modalError);
             }
             if(event.key==="ContextMenu"){
                 event.preventDefault()
-                setModalErrMsg("Error: Accion no valida");
+                setModalMsg("Error: Accion no valida");
                 setModalError(!modalError);
             }
         }, true)
@@ -90,18 +90,18 @@ export default function LoginForm(){
 
         // Validacion de campos; Busqueda de campos no vacios
         if(!correo && !contra){
-            setModalErrMsg("Error: No se ingreso correo y contraseña");
+            setModalMsg("Error: No se ingreso correo y contraseña");
             AbrCerrError();
         }else{
             // Validacion de direccion de correo parte 1; Busqueda de valor en el campo del formulario
             if(!correo){
-                setModalErrMsg("Error: Favor de ingresar su direccion de correo");
+                setModalMsg("Error: Favor de ingresar su direccion de correo");
                 AbrCerrError();
             }else{
                 // Validacion de direccion de correo parte 2; Pasar a minusculas y busqueda de espacios
                 correo=correo.toLowerCase()
                 if(expreEspa.test(correo)){
-                    setModalErrMsg("Error: Direccion de correo invalida");
+                    setModalMsg("Error: Direccion de correo invalida");
                     AbrCerrError();
                 }else{
                     // Validacion de direccion de correo parte 3; Evaluacion de direccion de correo con la expresion regular
@@ -126,7 +126,7 @@ export default function LoginForm(){
                         if(expreCorr.test(correo)){
                             staEma = true
                         }else{
-                            setModalErrMsg("Error: Su direccion de correo no es valida, favor de revisarla");
+                            setModalMsg("Error: Su direccion de correo no es valida, favor de revisarla");
                             AbrCerrError();
                         }
                     }
@@ -134,29 +134,29 @@ export default function LoginForm(){
             }
             // Validacion de contraseña parte 1; Busqueda de valor en el campo del formulario
             if(!contra){
-                setModalErrMsg("Error: Favor de ingresar su contraseña");
+                setModalMsg("Error: Favor de ingresar su contraseña");
                 AbrCerrError();
             }else{
                 // Validacion de contraseña parte 2; Remocion de espacios
                 contra=contra.replace(expreEspa, "");
                 // Si se borraron todos los espacios y el campo se quedo vacio se mandara un error
                 if(contra.length === 0 || contra === ""){
-                    setModalErrMsg("Error: Favor de ingresar su contraseña");
+                    setModalMsg("Error: Favor de ingresar su contraseña");
                     AbrCerrError();
                 }else{
                     // Validacion de contraseña parte 3; Busqueda de mayusculas
                     if(!/[A-Z]/g.test(contra)){
-                        setModalErrMsg("Error: Contraseña invalida");
+                        setModalMsg("Error: Contraseña invalida");
                         AbrCerrError();
                     }else{
                         // Validacion de contraseña parte 4; Busqueda de numeros
                         if(!/\d/g.test(contra)){
-                            setModalErrMsg("Error: Contraseña invalida");
+                            setModalMsg("Error: Contraseña invalida");
                             AbrCerrError();
                         }else{
                             // Validacion de contraseña parte 5; Busqueda de caracteres especiales
                             if(!/\W/g.test(contra)){
-                                setModalErrMsg("Error: Contraseña invalida");
+                                setModalMsg("Error: Contraseña invalida");
                                 AbrCerrError();
                             }else{
                                 //Validacion de contraseña parte 6; Busqueda de elementos de inyecciones SQL; Sanitizacion de palabras reservadas SQL
@@ -204,19 +204,19 @@ export default function LoginForm(){
     function redireccionar(){
         if(busUserBD && busContraBD){
             acceder("user", `${userRef.current.value}`);
-            setModalErrMsg(`${namUser}`);
+            setModalMsg(`${namUser}`);
             AbrCerAdv();
             setTimeout(() => (navegar("/home")), 2000);
         }
         else{
             // Caso: Usuario no encontrado
             if(!busUserBD){
-                setModalErrMsg("Error: Usuario no encontrado");
+                setModalMsg("Error: Usuario no encontrado");
                 AbrCerrError();
             }
             // Caso: Usuario encontrado pero contraseña invalida
             if(busUserBD && !busContraBD){
-                setModalErrMsg("Error: La contraseña es incorrecta");
+                setModalMsg("Error: La contraseña es incorrecta");
                 AbrCerrError();
             }
         }
@@ -256,7 +256,7 @@ export default function LoginForm(){
     // Funcion para muestra del menu contextual
     function contextMenu(event){
         event.preventDefault()
-        setModalErrMsg("Error: Accion no valida");
+        setModalMsg("Error: Accion no valida");
         AbrCerrError();
     }
     // Funcion para formatear las fechas
@@ -327,19 +327,19 @@ export default function LoginForm(){
                     </ModalHeader>
                     <ModalBody>
                         <Alert color="danger">
-                            {modalErrMsg}
+                            {modalMsg}
                         </Alert>
                     </ModalBody>
                 </Modal>
             </div>
             <div id="ModalAdvice">
                 <Modal isOpen={modalAdv} toggle={AbrCerAdv}>
-                    <ModalHeader toggle={AbrCerrError}>
+                    <ModalHeader toggle={AbrCerAdv}>
                         Bienvenido <AlertCircle color="blue" size={30} />
                     </ModalHeader>
                     <ModalBody>
                         <Alert color="success">
-                            {modalErrMsg}
+                            {modalMsg}
                         </Alert>
                     </ModalBody>
                 </Modal>
