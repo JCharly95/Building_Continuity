@@ -44,12 +44,7 @@ export default function LoginForm(){
     useEffect(() => {
         // Agregando un listener para la deteccion de teclas al presionarse
         document.addEventListener('keydown', (event) => {
-            if(event.key==="F12"){
-                event.preventDefault()
-                setModalMsg("Error: Accion no valida");
-                setModalError(!modalError);
-            }
-            if(event.key==="ContextMenu"){
+            if(event.key==="F12" || event.key==="ContextMenu"){
                 event.preventDefault()
                 setModalMsg("Error: Accion no valida");
                 setModalError(!modalError);
@@ -312,11 +307,11 @@ export default function LoginForm(){
                             </div>
                         </div>
                     </div>
-                    <div className="form-group">
-                        <RecuperContra/>
-                    </div>
-                    <div className="d-grid gap-2 mt-3">
+                    <div className="form-group d-grid gap-2 mt-3">
                         <button type="submit" className="btn btn-primary" onClick={veriForm}> Acceder </button>
+                    </div>
+                    <div className="form-group mt-2">
+                        <RecuperContra/>
                     </div>
                 </div>
             </form>

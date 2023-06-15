@@ -3,18 +3,18 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
-export default function menuDropdown({ selFilBus, elemSel, title }) {
+export default function listaFiltroSelGrafica({ selFilBus, elemSel, title }) {
     // Variable de estado para abrir/cerrar el menu desplegable
-    const [dropdown, setDropdown] = useState(false);
+    const [menuSensGraf, setMenuSensGraf] = useState(false);
     // Variable de estado para establecer el valor a mostrar en el menu desplegable
     const [tituloMenu, setTituloMenu] = useState(title);
     // Metodo para abrir o cerrar la lista desplegable, segun el estado en el que este
     const abrirCerrarMenu = () => {
-        setDropdown(!dropdown);
+        setMenuSensGraf(!menuSensGraf);
     }
     return (
-        <div className="btn">
-            <Dropdown isOpen={dropdown} toggle={abrirCerrarMenu}>
+        <div>
+            <Dropdown isOpen={menuSensGraf} toggle={abrirCerrarMenu}>
                 <DropdownToggle caret>
                     {tituloMenu}
                 </DropdownToggle>
@@ -23,10 +23,10 @@ export default function menuDropdown({ selFilBus, elemSel, title }) {
                         elemSel.map((elemento, index) => {
                             return (
                                 <DropdownItem onClick={ () => {
-                                        selFilBus (`${elemento.valor};${elemento.nombre}`); 
-                                        setTituloMenu(elemento.nombre);
+                                        selFilBus(`${elemento.valor};${elemento.nombre};${elemento.unidad}`); 
+                                        setTituloMenu(`${elemento.nombre} (${elemento.unidad})`);
                                     }
-                                } key={"TipSensor"+index} >{elemento.nombre}</DropdownItem>
+                                } key={"TipSensor"+index}>{`${elemento.nombre} (${elemento.unidad})`}</DropdownItem>
                             );
                         })
                     }

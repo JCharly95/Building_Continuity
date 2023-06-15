@@ -9,6 +9,10 @@
     min-height: 100vh; /* Alto de la ventana */
     min-width: 100vw; /* Ancho de la ventana */
 }
+/*Añadir color de transparencia a texto*/
+.textNoColor {
+    color: #91474700;
+}
 /*-------------------------------------------------------------*/
 /*--------------------Estilos del login------------------------*/
 .Auth-form-container {
@@ -61,6 +65,11 @@ span.link-primary {
 .enlace {
     color: white;
     text-decoration: none;
+}
+/*-------------------------------------------------------------*/
+/*------------------Estilos para la grafica---------------------*/
+.apexcharts-menu-item.exportPNG {
+    display: none;
 }
 /*-------------------------------------------------------------*/
 /*------------------Estilos para el footer---------------------*/

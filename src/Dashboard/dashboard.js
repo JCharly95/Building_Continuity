@@ -24,12 +24,7 @@ export default function DashBoard(){
     useEffect(() => {
         // Agregando un listener para la deteccion de teclas al presionarse
         document.addEventListener('keydown', (event) => {
-            if(event.key==="F12"){
-                event.preventDefault()
-                setModalErrMsg("Error: Accion no valida");
-                setModalError(!modalError);
-            }
-            if(event.key==="ContextMenu"){
+            if(event.key==="F12" || event.key==="ContextMenu"){
                 event.preventDefault()
                 setModalErrMsg("Error: Accion no valida");
                 setModalError(!modalError);

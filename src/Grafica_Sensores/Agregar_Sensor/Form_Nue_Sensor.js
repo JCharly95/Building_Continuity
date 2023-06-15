@@ -99,17 +99,16 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
     }
     return (
         <div>
-            <div className="container-fluid">
-                <div className="text-center">
-                    <Button color="dark" onClick={abrirCerrarModal} className="btn">
-                        <span>Agregar Filtro De Busqueda</span>
-                    </Button>
-                </div>
-                <Modal isOpen={modal} toggle={abrirCerrarModal}>
-                    <ModalHeader toggle={abrirCerrarModal}>
-                        Agregar un Sensor a la Lista de Seleccion
-                    </ModalHeader>
-                    <ModalBody>
+            <div className="text-center">
+                <Button color="dark" onClick={abrirCerrarModal}>
+                    <span>Agregar Filtro De Busqueda</span>
+                </Button>
+            </div>
+            <Modal isOpen={modal} toggle={abrirCerrarModal}>
+                <ModalHeader toggle={abrirCerrarModal}>
+                    Agregar un Sensor a la Lista de Seleccion
+                </ModalHeader>
+                <ModalBody>
                     <form onSubmit={crearSensor}>
                         <div className="form-group">
                             <label htmlFor="nombre-filtro" className="col-form-label">Nombre:</label>
@@ -120,23 +119,22 @@ export default function Nuevo_Sensor({ senFunc, sensores }) {
                             <ListaSensores solFilBus={nueSensList} elemSel={registros} title="Seleccione el Sensor" className="form-control" id="sensor-value" name="valor" />
                         </div>
                     </form>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="success" type="submit" onClick={crearSensor}>Agregar Sensor</Button>
+                    <Button color="danger" onClick={abrirCerrarModal}>Cancelar</Button>
+                </ModalFooter>
+            </Modal>
+            <div id="ModalError">
+                <Modal isOpen={modalError} toggle={AbrCerrError}>
+                    <ModalHeader toggle={AbrCerrError}>
+                        Error <AlertTriangle color="red" size={30} />
+                    </ModalHeader>
+                    <ModalBody>
+                        <Alert color="danger">
+                            {modalErrMsg}
+                        </Alert>
                     </ModalBody>
-                    <ModalFooter>
-                        <Button color="success" type="submit" onClick={crearSensor}>Agregar Sensor</Button>
-                        <Button color="danger" onClick={abrirCerrarModal}>Cancelar</Button>
-                    </ModalFooter>
-                    <div id="ModalError">
-                        <Modal isOpen={modalError} toggle={AbrCerrError}>
-                            <ModalHeader toggle={AbrCerrError}>
-                                Error <AlertTriangle color="red" size={30} />
-                            </ModalHeader>
-                            <ModalBody>
-                                <Alert color="danger">
-                                    {modalErrMsg}
-                                </Alert>
-                            </ModalBody>
-                        </Modal>
-                    </div>
                 </Modal>
             </div>
         </div>

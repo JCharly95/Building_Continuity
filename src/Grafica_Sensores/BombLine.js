@@ -1,5 +1,4 @@
 import axios from 'axios';
-import './hideOptDown.css';
 import { jsPDF } from 'jspdf';
 import "../Estilos/estilosGen.css";
 import Chart from 'react-apexcharts';
@@ -10,8 +9,8 @@ import 'flatpickr/dist/themes/light.css';
 import BarraNavega from '../Navbar/barraNav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import SelFilBus from '../Listas/lista_Senso_Dbl';
-import { Search, Calendar, Clock } from 'react-feather';
+import { Search, Calendar } from 'react-feather';
+import SelFilBus from '../Listas/listaFilSelGraf';
 import AddSensor from './Agregar_Sensor/form_Nue_Sensor';
 import { AlertTriangle, AlertCircle } from 'react-feather';
 import React, { useEffect, useState, useRef } from 'react';
@@ -38,6 +37,8 @@ export default function BombLine_BMS(){
     const [modalAdv, setModalAdv] = useState(false);
     // Variable de estado para el establecimiento del mensaje contenido en el modal de errores
     const [modalErrMsg, setModalErrMsg] = useState("Ocurrio un error en la accion solicitada");
+    // Variable de estado para el establecimiento del mensaje contenido en el modal de avisos
+    const [modalAdvMsg, setModalAdvMsg] = useState("Esperando mensaje de advertencia");
     // Arreglo de valores para el promedio y para concatenacion de elementos en la grafica
     const arrVals = [], info = [];
     // Flatpickr; Preparacion de constantes de referencia para limpieza de campos input
@@ -45,10 +46,63 @@ export default function BombLine_BMS(){
     // Flatpickr; Variables de referencia para la obtencion de fechas seleccionadas
     let fechIngreIni, fechIngreFin;
     // Obtencion de la lista de sensores actuales disponibles para la seleccion de busqueda en la lista
-    const [listaFil, setListaFil] = useState(listaSenso.map((sensor) => ({
-        nombre: `${sensor.Nombre}`,
-        valor: `${sensor.ID_}`
-    })));
+    const [listaFil, setListaFil] = useState(listaSenso.map(
+        (sensor) => {
+            if(`${sensor.VALUEFACETS}`.split(";")[1]!==''){
+                if(`${sensor.VALUEFACETS}`.split(";")[1]==='V' || `${sensor.VALUEFACETS}`.split(";")[1]==='v'){
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: 'Volts'
+                    }
+                }else if(`${sensor.VALUEFACETS}`.split(";")[1]==='%'){
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: '% de Combustible'
+                    }
+                }else{
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: `${sensor.VALUEFACETS}`.split(";")[1]
+                    }
+                }
+            }else{
+                if(`${sensor.ID_}`.includes("Incendio")){
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: 'Detecciones de Humo'
+                    }
+                }else if(`${sensor.ID_}`.includes("Potable")){
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: 'Litros'
+                    }
+                }else if(`${sensor.ID_}`.includes("Pluvial")){
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`,
+                        unidad: 'Cantidad de Lluvia'
+                    }
+                }else if(`${sensor.ID_}`.includes("Starts")){
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: 'Cantidad de Inicios'
+                    }
+                }else{
+                    return {
+                        nombre: `${sensor.Nombre}`, 
+                        valor: `${sensor.ID_}`, 
+                        unidad: 'No se detecta unidad'
+                    }
+                }
+            }
+        }
+    ));
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------Peticiones con Axios para obtener la informacion------------------------------------
     useEffect(() => {
@@ -78,21 +132,25 @@ export default function BombLine_BMS(){
     useEffect(() => {
         // Agregando un listener para la deteccion de teclas al presionarse
         document.addEventListener('keydown', (event) => {
-            if(event.key==="F12"){
-                event.preventDefault()
-                setModalErrMsg("Error: Accion no valida");
-                setModalError(!modalError);
-            }
-            if(event.key==="ContextMenu"){
+            if(event.key==="F12" || event.key==="ContextMenu"){
                 event.preventDefault()
                 setModalErrMsg("Error: Accion no valida");
                 setModalError(!modalError);
             }
         }, true)
+
+        // Buscar los elementos por classname para encontrar el texto de carga de informacion de la grafica
+        let elementos = document.getElementsByClassName("apexcharts-text")
+        for(const element of elementos){
+            if(element.textContent === "Preparando información, aguarde por favor..."){
+                break;
+            }
+        }
     }, [modalError])
 //-----------------------------Codigo para el funcionamiento de Inactividad------------------------------------
     useEffect(() => {
         setModalAdv(true)
+        setModalAdvMsg("NOTA: Si la consulta de datos que desea realizar contiene muchos registros, la grafica podria tardar en cargar. Gracias por su comprensión.")
         let contaInacti;
         function setupInacti(){     // Preparacion para el procedimiento de inactividad
             // Agregando los listener de los eventos en pantalla
@@ -258,6 +316,9 @@ export default function BombLine_BMS(){
                 }
             },
             yaxis: {
+                title: {
+                    text: (`${tipInfoBus.split(";")[2]}`==='undefined') ? `Esperando Seleccion` : `Unidad de Medición: ${tipInfoBus.split(";")[2]}`
+                },
                 labels: {
                     offsetX: 0,
                     offsetY: 0
@@ -302,12 +363,63 @@ export default function BombLine_BMS(){
             // Vaciando el arreglo
             listaFil.splice(0, listaFil.length);
             // Rellenando el arreglo con los elementos de la BD
-            listaSenso.map((sensor) => (
-                listaFil.push({
-                        nombre: `${sensor.Nombre}`,
-                        valor: `${sensor.ID_}`
+            listaSenso.map(
+                (sensor) => {
+                    if(`${sensor.VALUEFACETS}`.split(";")[1]!==''){
+                        if(`${sensor.VALUEFACETS}`.split(";")[1]==='V' || `${sensor.VALUEFACETS}`.split(";")[1]==='v'){
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: 'Volts'
+                            });
+                        }else if(`${sensor.VALUEFACETS}`.split(";")[1]==='%'){
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: '% de Combustible'
+                            });
+                        }else{
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: `${sensor.VALUEFACETS}`.split(";")[1]
+                            });
+                        }
+                    }else{
+                        if(`${sensor.ID_}`.includes("Incendio")){
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: 'Detecciones de Humo'
+                            });
+                        }else if(`${sensor.ID_}`.includes("Potable")){
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: 'Litros'
+                            });
+                        }else if(`${sensor.ID_}`.includes("Pluvial")){
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`,
+                                unidad: 'Cantidad de Lluvia'
+                            });
+                        }else if(`${sensor.ID_}`.includes("Starts")){
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: 'Cantidad de Inicios'
+                            });
+                        }else{
+                            listaFil.push({
+                                nombre: `${sensor.Nombre}`, 
+                                valor: `${sensor.ID_}`, 
+                                unidad: 'No se detecta unidad'
+                            });
+                        }
                     }
-                ))
+                    return 0;
+                }
             );
         }
         // Funcion para establecer los sensores a buscar; Esta funcion se usara junto con el modal de agregar sensor
@@ -351,7 +463,6 @@ export default function BombLine_BMS(){
             return(`${fecha.getFullYear()}-${mes}-${dia}_${hora}.${min}`);
         }
         return (
-
             <div className="pageSchema" onContextMenu={contextMenu}>
                 <BarraNavega />
                 <div className='container-fluid border mt-3'>
@@ -359,10 +470,11 @@ export default function BombLine_BMS(){
                         <div className='col-md-auto'>
                             <div className='row align-items-center'>
                                 <div className='col-md-auto'>
-                                    <Search size={30} />
-                                </div>
-                                <div className='col-md-auto'>
-                                    <div className='row align-items-center mb-2'>
+                                    <span className='textNoColor'>A</span>
+                                    <div className='input-group mb-2'>
+                                        <div className='input-group-prepend'>
+                                            <div className='input-group-text'><Search/></div>
+                                        </div>
                                         <SelFilBus selFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
                                     </div>
                                 </div>
@@ -371,54 +483,46 @@ export default function BombLine_BMS(){
                         <div className='col-md-auto'>
                             <div className='row align-items-center'>
                                 <div className='col-md-auto'>
-                                    <Calendar size={30} />
-                                    <Clock size={30} />
-                                </div>
-                                <div className='col-md-auto'>
-                                    <div className='row align-items-center mb-2'>
-                                        <span>Seleccionar Fecha y Hora de Inicio:</span>
-                                    </div>
-                                    <div className='row align-items-center mb-2'>
-                                        <Flatpickr ref={fechIniSel} options={optionsInicial} />
-                                    </div>
-                                    <div className='row align-items-center mb-2'>
+                                    <span>Seleccionar Fecha y Hora de Inicio:</span>
+                                    <div className='input-group mb-2'>
+                                        <div className='input-group-prepend'>
+                                            <div className='input-group-text'><Calendar/></div>
+                                        </div>
+                                        <Flatpickr placeholder='Seleccionar Fecha y Hora de Inicio:' ref={fechIniSel} options={optionsInicial} />
                                         <button className='btn btn-danger' type="button" onClick={() => {
                                             if (!fechIniSel?.current?.flatpickr) return;
                                                 fechIniSel.current.flatpickr.clear();
                                                 setFechIni("");
                                             }
-                                        }> Limpiar Seleccion
+                                        }> Borrar
                                         </button>
                                     </div>
                                 </div>
                                 <div className='col-md-auto'>
-                                    <Calendar size={30} />
-                                    <Clock size={30} />
-                                </div>
-                                <div className='col-md-auto'>
-                                    <div className='row align-items-center mb-2'>
-                                        <span>Seleccionar Fecha y Hora de Fin:</span>
-                                    </div>
-                                    <div className='row align-items-center mb-2'>
-                                        <Flatpickr ref={fechFinSel} options={optionsFinal} />
-                                    </div>
-                                    <div className='row align-items-center mb-2'>
+                                    <span>Seleccionar Fecha y Hora de Fin:</span>
+                                    <div className='input-group mb-2'>
+                                        <div className='input-group-prepend'>
+                                            <div className='input-group-text'><Calendar/></div>
+                                        </div>
+                                        <Flatpickr placeholder='Seleccionar Fecha y Hora de Fin:' ref={fechFinSel} options={optionsFinal} />
                                         <button className='btn btn-danger' type="button" onClick={() => {
                                             if (!fechFinSel?.current?.flatpickr) return;
                                                 fechFinSel.current.flatpickr.clear();
                                                 setFechFin("");
                                             }
-                                        }>
-                                            Limpiar Seleccion
+                                        }> Borrar
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div className='col-md-auto'>
-                            <div className='row align-items-center mb-2'>
                                 <div className='col-md-auto'>
-                                    <AddSensor senFunc={addSensBus} sensores={listaFil} />
+                                    <div className='row align-items-center'>
+                                        <div className='col-md-auto'>
+                                            <span className='textNoColor'>A</span>
+                                            <div className='input-group mb-2'>
+                                                <AddSensor senFunc={addSensBus} sensores={listaFil} />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -427,6 +531,7 @@ export default function BombLine_BMS(){
                         <Chart options={options} series={options.series} type="line" width="100%" height="280%" />
                     </div>
                 </div>
+                <Copyright />
                 <div id="ModalError">
                     <Modal isOpen={modalError} toggle={AbrCerrError}>
                         <ModalHeader toggle={AbrCerrError}>
@@ -446,12 +551,11 @@ export default function BombLine_BMS(){
                         </ModalHeader>
                         <ModalBody>
                             <Alert color="success">
-                                NOTA: Si la consulta de datos que desea realizar contiene muchos registros, la grafica podria tardar en cargar. <br/> Gracias por su comprensión.
+                                {modalAdvMsg}
                             </Alert>
                         </ModalBody>
                     </Modal>
                 </div>
-                <Copyright />
             </div>
         );
     }
