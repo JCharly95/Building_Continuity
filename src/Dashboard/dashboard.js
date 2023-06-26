@@ -1,10 +1,12 @@
-import "../Estilos/estilosGen.css"
+import "../Estilos/estilosGen.css";
 import Copyright from "../Footer/pie";
-import BarraNavega from '../Navbar/barraNav'
+import BarraNavega from '../Navbar/barraNav';
 import { AlertTriangle } from 'react-feather';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from "react";
+import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, CardBody, CardTitle, CardSubtitle, CardText, CardImg, Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 
 export default function DashBoard(){
@@ -92,27 +94,62 @@ export default function DashBoard(){
             <div className="pageSchema" onContextMenu={contextMenu}>
                 <BarraNavega />
                 <div className='container' style={{ padding: 50 }}>
-                    <Card color="success">
-                        <CardBody>
-                            <div className='row align-items-center'>
-                                <div className='col-md-auto'>
-                                    <CardImg alt="Sample" src="https://picsum.photos/300/200" />
-                                </div>
-                                <div className='col-md-auto'>
-                                    <CardTitle tag="h3">
-                                        {nomVal}, ¿que desea hacer hoy?
+                    <Card className="mb-3" style={{maxWidth: "540px;", backgroundColor: '#F8F8F8'}}>
+                        <div className="row g-0 align-items-center">
+                            <div className="col-md-4">
+                                <CardImg alt="PicProfile" src="https://picsum.photos/300"/>
+                            </div>
+                            <div className="col-md-8">
+                                <CardBody>
+                                    <CardTitle className="card-title" tag={"h5"}>
+                                        <div className='row justify-content-md-center align-items-center'>
+                                            <div className='col-md-auto'>
+                                                <FontAwesomeIcon icon={faCircleUser} style={{color: "#00304E"}} size='2x' />
+                                            </div>
+                                            <div className='col-md-auto'>
+                                                ¿Que desea realizar el dia de hoy, {nomVal}?
+                                            </div>
+                                        </div>
                                     </CardTitle>
-                                    <CardSubtitle className="mb-2" tag="h5" >
-                                        Hoy es: {getFecha("")}
+                                    <CardSubtitle className="mb-3 mt-2 align-items-center" tag="h5" >
+                                        <div className='row justify-content-md-center align-items-center text-muted'>
+                                            <div className='col-md-offset-2 col-md-auto'>
+                                                La fecha actual es:
+                                            </div>
+                                            <div className='col-md-auto'>
+                                                {getFecha("")}
+                                            </div>
+                                        </div>
                                     </CardSubtitle>
                                     <CardText>
-                                        <span>Direccion de correo: {userVal}</span><br />
-                                        <span>Contraseña: {contraVal}</span><br />
-                                        <span>Fecha de Acceso: {fechAcc}</span>
+                                        <div className='row mb-2'>
+                                            <div className='col-md-5 offset-md-1'>
+                                                <span>Direccion de correo:</span>
+                                            </div>
+                                            <div className='col-md-6'>
+                                                <span>{userVal}</span>
+                                            </div>
+                                        </div>
+                                        <div className='row mb-2'>
+                                            <div className='col-md-5 offset-md-1'>
+                                                <span>Contraseña:</span>
+                                            </div>
+                                            <div className='col-md-6'>
+                                                <span>{contraVal}</span>
+                                            </div>
+                                        </div>
+                                        <div className='row mb-2'>
+                                            <div className='col-md-5 offset-md-1'>
+                                                <span>Ultima fecha de acceso:</span>
+                                            </div>
+                                            <div className='col-md-6'>
+                                                <span>{fechAcc}</span>
+                                            </div>
+                                        </div>
                                     </CardText>
-                                </div>
+                                </CardBody>
                             </div>
-                        </CardBody>
+                        </div>
                     </Card>
                 </div>
                 <div id="ModalError">

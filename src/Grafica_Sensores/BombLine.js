@@ -6,14 +6,16 @@ import Copyright from '../Footer/pie';
 import html2canvas from 'html2canvas';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/light.css';
+import { Calendar } from 'react-feather';
 import BarraNavega from '../Navbar/barraNav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import { Search, Calendar } from 'react-feather';
 import SelFilBus from '../Listas/listaFilSelGraf';
 import AddSensor from './Agregar_Sensor/form_Nue_Sensor';
 import { AlertTriangle, AlertCircle } from 'react-feather';
 import React, { useEffect, useState, useRef } from 'react';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 
 export default function BombLine_BMS(){
@@ -39,6 +41,8 @@ export default function BombLine_BMS(){
     const [modalErrMsg, setModalErrMsg] = useState("Ocurrio un error en la accion solicitada");
     // Variable de estado para el establecimiento del mensaje contenido en el modal de avisos
     const [modalAdvMsg, setModalAdvMsg] = useState("Esperando mensaje de advertencia");
+    // Variable de animacion de carga
+    const [iconCh, setIconCh] = useState();
     // Arreglo de valores para el promedio y para concatenacion de elementos en la grafica
     const arrVals = [], info = [];
     // Flatpickr; Preparacion de constantes de referencia para limpieza de campos input
@@ -137,16 +141,30 @@ export default function BombLine_BMS(){
                 setModalErrMsg("Error: Accion no valida");
                 setModalError(!modalError);
             }
-        }, true)
-
+        }, true);
+        
         // Buscar los elementos por classname para encontrar el texto de carga de informacion de la grafica
-        let elementos = document.getElementsByClassName("apexcharts-text")
+        let elementos = document.getElementsByClassName("apexcharts-text");
         for(const element of elementos){
             if(element.textContent === "Preparando información, aguarde por favor..."){
+                setIconCh(
+                    <div className='col-auto'>
+                        <div className='row justify-content-center align-items-center'>
+                            <span>Esperando...</span>
+                        </div>
+                        <div className='row justify-content-center align-items-center'>
+                            <FontAwesomeIcon icon={faSpinner} size='2x' spin/>
+                        </div>
+                    </div>
+                );
                 break;
+            }else{
+                setIconCh();
             }
         }
-    }, [modalError])
+        
+    }, [modalError, iconCh])
+
 //-----------------------------Codigo para el funcionamiento de Inactividad------------------------------------
     useEffect(() => {
         setModalAdv(true)
@@ -240,7 +258,6 @@ export default function BombLine_BMS(){
         regsBusqueda.map((reg) => (arrVals.push(reg.VALUE)));
         if(arrVals.length > 0){
             const promedio = parseFloat((arrVals.reduce((valPrev, valAct) => valAct += valPrev) / arrVals.length).toFixed(2));
-    
             regsBusqueda.map(function(registro){
                 const fecha = registro.DATE, valor = registro.VALUE;
                 // Si se realizo la limpieza de seleccion de rangos de fechas no se tendran valores, por lo cual solo se retornara la funcion
@@ -248,8 +265,9 @@ export default function BombLine_BMS(){
                     return null;
                 /* Ya que el promedio depende del resultado de la consulta solo en este punto se puede hacer el filtrado de datos junto con el parametro del promedio.
                 Entonces si la fecha se comprende entre la inicial y la final, ademas de ser mayor al promedio (para que no haya tantos registros) se incoporara el registro al arreglo de valores para la grafica*/
-                if((fecha > fechIni) && (fecha < fechFin) && (valor > promedio))
+                if((fecha > fechIni) && (fecha < fechFin) && (valor > promedio)){
                     info.push([fecha, valor])
+                }
                 return 0;
             });
         }
@@ -302,6 +320,20 @@ export default function BombLine_BMS(){
                         svg: {
                             filename: `BMS Grafica de ${getFecha()}; Registros ${tipInfoBus.split(";")[1]}`
                         }
+                    }
+                },
+                events: {
+                    updated: function (chartContext, config) {
+                        setIconCh(
+                            <div className='col-md-auto'>
+                                <div className='row justify-content-center align-items-center'>
+                                    <span>Cargando...</span>
+                                </div>
+                                <div className='row justify-content-center align-items-center'>
+                                    <FontAwesomeIcon icon={faSpinner} size='2x' spin/>
+                                </div>
+                            </div>
+                        );
                     }
                 }
             },
@@ -459,7 +491,6 @@ export default function BombLine_BMS(){
                 min="0"+fecha.getMinutes().toString()
             else
                 min=fecha.getMinutes()
-                
             return(`${fecha.getFullYear()}-${mes}-${dia}_${hora}.${min}`);
         }
         return (
@@ -467,65 +498,55 @@ export default function BombLine_BMS(){
                 <BarraNavega />
                 <div className='container-fluid border mt-3'>
                     <div className='row align-items-center border pt-3 pb-3 text-center'>
-                        <div className='col-md-auto'>
+                        <div className='col-auto'>
+                            <span className='textNoColor'>A</span>
+                            <div className='input-group mb-2'>
+                                <SelFilBus id="selFil" selFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
+                            </div>
+                        </div>
+                        <div className='col-sm-3'>
+                            <span>Seleccionar Fecha y Hora de Inicio:</span>
+                            <div className='input-group mb-2'>
+                                <div className='input-group-prepend'>
+                                    <div className='input-group-text'><Calendar/></div>
+                                </div>
+                                <Flatpickr placeholder='Seleccionar Fecha y Hora de Inicio:' ref={fechIniSel} options={optionsInicial} />
+                                <button className='btn btn-danger' type="button" onClick={() => {
+                                    if (!fechIniSel?.current?.flatpickr) return;
+                                        fechIniSel.current.flatpickr.clear();
+                                        setFechIni("");
+                                    }
+                                }> Borrar
+                                </button>
+                            </div>
+                        </div>
+                        <div className='col-sm-3'>
+                            <span>Seleccionar Fecha y Hora de Fin:</span>
+                            <div className='input-group mb-2'>
+                                <div className='input-group-prepend'>
+                                    <div className='input-group-text'><Calendar/></div>
+                                </div>
+                                <Flatpickr placeholder='Seleccionar Fecha y Hora de Fin:' ref={fechFinSel} options={optionsFinal} />
+                                <button className='btn btn-danger' type="button" onClick={() => {
+                                    if (!fechFinSel?.current?.flatpickr) return;
+                                        fechFinSel.current.flatpickr.clear();
+                                        setFechFin("");
+                                    }
+                                }> Borrar
+                                </button>
+                            </div>
+                        </div>
+                        <div className='col-auto'>
                             <div className='row align-items-center'>
                                 <div className='col-md-auto'>
                                     <span className='textNoColor'>A</span>
                                     <div className='input-group mb-2'>
-                                        <div className='input-group-prepend'>
-                                            <div className='input-group-text'><Search/></div>
-                                        </div>
-                                        <SelFilBus selFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
+                                        <AddSensor senFunc={addSensBus} sensores={listaFil} />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className='col-md-auto'>
-                            <div className='row align-items-center'>
-                                <div className='col-md-auto'>
-                                    <span>Seleccionar Fecha y Hora de Inicio:</span>
-                                    <div className='input-group mb-2'>
-                                        <div className='input-group-prepend'>
-                                            <div className='input-group-text'><Calendar/></div>
-                                        </div>
-                                        <Flatpickr placeholder='Seleccionar Fecha y Hora de Inicio:' ref={fechIniSel} options={optionsInicial} />
-                                        <button className='btn btn-danger' type="button" onClick={() => {
-                                            if (!fechIniSel?.current?.flatpickr) return;
-                                                fechIniSel.current.flatpickr.clear();
-                                                setFechIni("");
-                                            }
-                                        }> Borrar
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className='col-md-auto'>
-                                    <span>Seleccionar Fecha y Hora de Fin:</span>
-                                    <div className='input-group mb-2'>
-                                        <div className='input-group-prepend'>
-                                            <div className='input-group-text'><Calendar/></div>
-                                        </div>
-                                        <Flatpickr placeholder='Seleccionar Fecha y Hora de Fin:' ref={fechFinSel} options={optionsFinal} />
-                                        <button className='btn btn-danger' type="button" onClick={() => {
-                                            if (!fechFinSel?.current?.flatpickr) return;
-                                                fechFinSel.current.flatpickr.clear();
-                                                setFechFin("");
-                                            }
-                                        }> Borrar
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className='col-md-auto'>
-                                    <div className='row align-items-center'>
-                                        <div className='col-md-auto'>
-                                            <span className='textNoColor'>A</span>
-                                            <div className='input-group mb-2'>
-                                                <AddSensor senFunc={addSensBus} sensores={listaFil} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {iconCh}
                     </div>
                     <div id='areaGraf' className='row align-items-center border pt-3 pb-5 mb-3'>
                         <Chart options={options} series={options.series} type="line" width="100%" height="280%" />
