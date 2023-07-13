@@ -1,5 +1,6 @@
 import axios from "axios";
 import "../Estilos/estilosGen.css";
+import Copyright from "../Footer/pie";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 import RecuperContra from "./ForgotPass/recuContra";
@@ -339,6 +340,7 @@ export default function LoginForm(){
                     </ModalBody>
                 </Modal>
             </div>
+            <Copyright />
         </div>
     );
 }

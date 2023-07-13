@@ -111,23 +111,21 @@ export default function BombLine_BMS(){
 //-------------------------Peticiones con Axios para obtener la informacion------------------------------------
     useEffect(() => {
         // Peticion para obtener los datos de historicrecord que se usaran en la grafica
-        const obteInfo = async (estado) => {
-            try {
+        const obteInfo = async(estado) => {
+            try{
                 const peticion = await axios.get('https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=historico');
                 estado(peticion.data);
-            } catch (error) {
-                console.log("Error en los datos");
+            } catch (error){
             }
         }
         obteInfo(setMetadata);
 
         //Peticion para obtener los valores de la tabla de registros de los sensores
-        const obteSenso = async (estado) => {
-            try {
+        const obteSenso = async(estado) => {
+            try{
                 const peticion = await axios.get('https://app.buildingcontinuity.com.mx/php/data.php?tipo_consulta=sensor');
                 estado(peticion.data);
-            } catch (error) {
-                console.log("Error en los datos");
+            } catch (error){
             }
         }
         obteSenso(setListaSenso);
@@ -148,7 +146,7 @@ export default function BombLine_BMS(){
         for(const element of elementos){
             if(element.textContent === "Preparando información, aguarde por favor..."){
                 setIconCh(
-                    <div className='col-auto'>
+                    <div className='col-sm-auto'>
                         <div className='row justify-content-center align-items-center'>
                             <span>Esperando...</span>
                         </div>
@@ -325,7 +323,7 @@ export default function BombLine_BMS(){
                 events: {
                     updated: function (chartContext, config) {
                         setIconCh(
-                            <div className='col-md-auto'>
+                            <div className='col-sm-auto'>
                                 <div className='row justify-content-center align-items-center'>
                                     <span>Cargando...</span>
                                 </div>
@@ -495,87 +493,91 @@ export default function BombLine_BMS(){
         }
         return (
             <div className="pageSchema" onContextMenu={contextMenu}>
-                <BarraNavega />
-                <div className='container-fluid border mt-3'>
-                    <div className='row align-items-center border pt-3 pb-3 text-center'>
-                        <div className='col-auto'>
-                            <span className='textNoColor'>A</span>
-                            <div className='input-group mb-2'>
-                                <SelFilBus id="selFil" selFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
-                            </div>
-                        </div>
-                        <div className='col-sm-3'>
-                            <span>Seleccionar Fecha y Hora de Inicio:</span>
-                            <div className='input-group mb-2'>
-                                <div className='input-group-prepend'>
-                                    <div className='input-group-text'><Calendar/></div>
+                <div className='encabezado'>
+                    <BarraNavega />
+                </div>
+                <div className='contenido'>
+                    <div className='container-fluid border mt-3'>
+                        <div className='row align-items-center border pt-3 pb-3 text-center'>
+                            <div className='col-sm-auto mt-4'>
+                                <div className='input-group mb-2'>
+                                    <SelFilBus id="selFil" selFilBus={solFilBus} elemSel={listaFil} title="Seleccione la categoria"/>
                                 </div>
-                                <Flatpickr placeholder='Seleccionar Fecha y Hora de Inicio:' ref={fechIniSel} options={optionsInicial} />
-                                <button className='btn btn-danger' type="button" onClick={() => {
-                                    if (!fechIniSel?.current?.flatpickr) return;
-                                        fechIniSel.current.flatpickr.clear();
-                                        setFechIni("");
-                                    }
-                                }> Borrar
-                                </button>
                             </div>
-                        </div>
-                        <div className='col-sm-3'>
-                            <span>Seleccionar Fecha y Hora de Fin:</span>
-                            <div className='input-group mb-2'>
-                                <div className='input-group-prepend'>
-                                    <div className='input-group-text'><Calendar/></div>
+                            <div className='col-sm-3'>
+                                <span>Seleccionar Fecha y Hora de Inicio:</span>
+                                <div className='input-group mb-2'>
+                                    <div className='input-group-prepend'>
+                                        <div className='input-group-text'><Calendar/></div>
+                                    </div>
+                                    <Flatpickr placeholder='Seleccionar Fecha y Hora de Inicio:' ref={fechIniSel} options={optionsInicial} />
+                                    <button className='btn btn-danger' type="button" onClick={() => {
+                                        if (!fechIniSel?.current?.flatpickr) return;
+                                            fechIniSel.current.flatpickr.clear();
+                                            setFechIni("");
+                                        }
+                                    }> Borrar
+                                    </button>
                                 </div>
-                                <Flatpickr placeholder='Seleccionar Fecha y Hora de Fin:' ref={fechFinSel} options={optionsFinal} />
-                                <button className='btn btn-danger' type="button" onClick={() => {
-                                    if (!fechFinSel?.current?.flatpickr) return;
-                                        fechFinSel.current.flatpickr.clear();
-                                        setFechFin("");
-                                    }
-                                }> Borrar
-                                </button>
                             </div>
-                        </div>
-                        <div className='col-auto'>
-                            <div className='row align-items-center'>
-                                <div className='col-md-auto'>
-                                    <span className='textNoColor'>A</span>
-                                    <div className='input-group mb-2'>
-                                        <AddSensor senFunc={addSensBus} sensores={listaFil} />
+                            <div className='col-sm-3'>
+                                <span>Seleccionar Fecha y Hora de Fin:</span>
+                                <div className='input-group mb-2'>
+                                    <div className='input-group-prepend'>
+                                        <div className='input-group-text'><Calendar/></div>
+                                    </div>
+                                    <Flatpickr placeholder='Seleccionar Fecha y Hora de Fin:' ref={fechFinSel} options={optionsFinal} />
+                                    <button className='btn btn-danger' type="button" onClick={() => {
+                                        if (!fechFinSel?.current?.flatpickr) return;
+                                            fechFinSel.current.flatpickr.clear();
+                                            setFechFin("");
+                                        }
+                                    }> Borrar
+                                    </button>
+                                </div>
+                            </div>
+                            <div className='col-sm-auto'>
+                                <div className='row align-items-center'>
+                                    <div className='col-md-auto'>
+                                        <div className='input-group mt-4 mb-2'>
+                                            <AddSensor senFunc={addSensBus} sensores={listaFil} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {iconCh}
                         </div>
-                        {iconCh}
-                    </div>
-                    <div id='areaGraf' className='row align-items-center border pt-3 pb-5 mb-3'>
-                        <Chart options={options} series={options.series} type="line" width="100%" height="280%" />
+                        <div id='areaGraf' className='row align-items-center border pt-3 pb-5 mb-3'>
+                            <Chart options={options} series={options.series} type="line" width="100%" height="280%" />
+                        </div>
+                        <div id="ModalError">
+                            <Modal isOpen={modalError} toggle={AbrCerrError}>
+                                <ModalHeader toggle={AbrCerrError}>
+                                    <p>Error <AlertTriangle color="red" size={30} /></p>
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Alert color="danger">
+                                        <p>{modalErrMsg}</p>
+                                    </Alert>
+                                </ModalBody>
+                            </Modal>
+                        </div>
+                        <div id="ModalAdvice">
+                            <Modal isOpen={modalAdv} toggle={AbrCerAdv}>
+                                <ModalHeader toggle={AbrCerAdv}>
+                                    <p>Advertencia <AlertCircle color="blue" size={30} /></p>
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Alert color="success">
+                                        <p>{modalAdvMsg}</p>
+                                    </Alert>
+                                </ModalBody>
+                            </Modal>
+                        </div>
                     </div>
                 </div>
-                <Copyright />
-                <div id="ModalError">
-                    <Modal isOpen={modalError} toggle={AbrCerrError}>
-                        <ModalHeader toggle={AbrCerrError}>
-                            Error <AlertTriangle color="red" size={30} />
-                        </ModalHeader>
-                        <ModalBody>
-                            <Alert color="danger">
-                                {modalErrMsg}
-                            </Alert>
-                        </ModalBody>
-                    </Modal>
-                </div>
-                <div id="ModalAdvice">
-                    <Modal isOpen={modalAdv} toggle={AbrCerAdv}>
-                        <ModalHeader toggle={AbrCerAdv}>
-                            Advertencia <AlertCircle color="blue" size={30} />
-                        </ModalHeader>
-                        <ModalBody>
-                            <Alert color="success">
-                                {modalAdvMsg}
-                            </Alert>
-                        </ModalBody>
-                    </Modal>
+                <div className='pie'>
+                    <Copyright />
                 </div>
             </div>
         );

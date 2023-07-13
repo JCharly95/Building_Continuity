@@ -94,7 +94,7 @@ export default function DashBoard(){
             <div className="pageSchema" onContextMenu={contextMenu}>
                 <BarraNavega />
                 <div className='container' style={{ padding: 50 }}>
-                    <Card className="mb-3" style={{maxWidth: "540px;", backgroundColor: '#F8F8F8'}}>
+                    <Card className="mb-3" style={{ backgroundColor: '#F8F8F8' }}>
                         <div className="row g-0 align-items-center">
                             <div className="col-md-4">
                                 <CardImg alt="PicProfile" src="https://picsum.photos/300"/>
@@ -107,17 +107,17 @@ export default function DashBoard(){
                                                 <FontAwesomeIcon icon={faCircleUser} style={{color: "#00304E"}} size='2x' />
                                             </div>
                                             <div className='col-md-auto'>
-                                                ¿Que desea realizar el dia de hoy, {nomVal}?
+                                                <p>¿Que desea realizar el dia de hoy, {nomVal}?</p>
                                             </div>
                                         </div>
                                     </CardTitle>
-                                    <CardSubtitle className="mb-3 mt-2 align-items-center" tag="h5" >
+                                    <CardSubtitle className=" align-items-center" tag="h5" >
                                         <div className='row justify-content-md-center align-items-center text-muted'>
                                             <div className='col-md-offset-2 col-md-auto'>
-                                                La fecha actual es:
+                                                <p>La fecha actual es:</p>
                                             </div>
                                             <div className='col-md-auto'>
-                                                {getFecha("")}
+                                                <p>{getFecha("")}</p>
                                             </div>
                                         </div>
                                     </CardSubtitle>
@@ -155,11 +155,11 @@ export default function DashBoard(){
                 <div id="ModalError">
                     <Modal isOpen={modalError} toggle={AbrCerrError}>
                         <ModalHeader toggle={AbrCerrError}>
-                            Error <AlertTriangle color="red" size={30} />
+                            <p>Error <AlertTriangle color="red" size={30} /></p>
                         </ModalHeader>
                         <ModalBody>
                             <Alert color="danger">
-                                {modalErrMsg}
+                                <p>{modalErrMsg}</p>
                             </Alert>
                         </ModalBody>
                     </Modal>
